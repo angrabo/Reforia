@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using ReforiaBackend.Rpc.Core;
+using Reforia.Rpc.Contracts;
+using Reforia.Rpc.Core;
 
 namespace ReforiaBackend.Hubs;
 

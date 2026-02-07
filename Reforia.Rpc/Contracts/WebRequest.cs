@@ -1,4 +1,4 @@
-﻿namespace ReforiaBackend.Rpc.Core;
+﻿namespace Reforia.Rpc.Contracts;
 
 public class WebRequest
 {
