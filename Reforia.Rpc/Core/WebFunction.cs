@@ -11,7 +11,7 @@ public abstract class WebFunction<TRequest, TResponse> : IWebFunction
     {
         try
         {
-            var request = JsonSerializer.Deserialize<TRequest>(jsonBody);
+            var request = JsonSerializer.Deserialize<TRequest>(jsonBody, new JsonSerializerOptions( ) { PropertyNameCaseInsensitive = true});
             
             if (request == null)
                 return WebResponse.BadRequest("", new List<string> { "Invalid request body" });
