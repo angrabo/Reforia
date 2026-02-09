@@ -1,52 +1,145 @@
 # ReforiaBackend
 
-ASP.NET Core backend exposing a **SignalR** hub (`/hub`) and a custom **RPC** layer (`Reforia.Rpc`) for invoking server-side functions with typed request/response models.
+ASP.NET Core backend exposing a **SignalR** hub (`/hub`) and a custom **RPC** layer (`Reforia.Rpc`) for invoking server-side functions using typed request/response models.
 
-## Solution layout
+---
 
-- `Reforia.Backend`  
-  ASP.NET Core host application (DI, SignalR hub, CORS, OpenAPI).
-- `Reforia.Rpc`  
-  Core RPC framework (contracts, dispatcher, function base types, registration).
-- `Reforia.IrcModule`  
-  Feature module registered into RPC (functions + services).
-- `Reforia.TestModule`  
-  Example module showing typed functions (`WebFunction<TRequest,TResponse>`).
-- `Reforia.RpcTestTool` (WPF)  
-  Local test client/UI.
-- `Docs/`  
-  Technical documentation.
+## Solution Layout
 
-## Runtime endpoints
+### `Reforia.Backend`
+ASP.NET Core host application responsible for:
+- Dependency Injection
+- SignalR hub
+- CORS configuration
+- OpenAPI / Swagger
+- Module registration
 
-- **SignalR Hub**: `/hub`
-    - `Call(WebRequest) -> WebResponse` (RPC entrypoint)
-    - `JoinIrcConnection(connectionId)` / `LeaveIrcConnection(connectionId)` (SignalR groups)
+### `Reforia.Rpc`
+Core RPC framework providing:
+- Contracts
+- Dispatcher
+- Function base types
+- Function registration & discovery
 
-## RPC contract
+### `Reforia.IrcModule`
+Feature module registered into RPC:
+- IRC-related functions
+- IRC services
+
+### `Reforia.TestModule`
+Example module demonstrating:
+- Typed RPC functions
+- `WebFunction<TRequest, TResponse>` usage
+
+### `Reforia.RpcTestTool` (WPF)
+Local UI client used for manual RPC testing.
+
+### `Docs/`
+Technical documentation.
+
+---
+
+## Runtime Endpoints
+
+### SignalR Hub
+/hub
+
+#### Methods
+
+##### `Call(WebRequest) -> WebResponse`
+Main RPC entrypoint.
+
+##### `JoinIrcConnection(connectionId)`
+Adds client to SignalR group.
+
+##### `LeaveIrcConnection(connectionId)`
+Removes client from SignalR group.
+
+---
+
+## RPC Contract
 
 ### Request (`WebRequest`)
-`Call(...)` accepts:
+
 ```json
-{ 
+{
   "functionName": "exampleFunction",
-  "requestId": "a-client-generated-id",
+  "requestId": "client-generated-id",
   "body": {
     "dummy": 123
   }
 }
 ```
+## Architecture
+### Transport + RPC Flow
 
-## Architecture (ASCII)
+```
++------------------------+
+| Client (Desktop / Web) |
++-----------+------------+
+            |
+            | SignalR
+            v
++------------------------+
+| ASP.NET Core Host      |
+| Reforia.Backend        |
++-----------+------------+
+            |
+            | hub.Invoke("Call", WebRequest)
+            v
++------------------------+
+| AppHub (/hub)          |
+| Transport Layer        |
++-----------+------------+
+            |
+            | forwards request
+            v
++------------------------+
+| WebDispatcher          |
+| Dispatch(WebRequest)   |
++-----------+------------+
+            |
+            | resolve function
+            | execute function
+            v
++------------------------------+
+| WebFunction<TReq, TRes>      |
+| (Module Function)            |
++-----------+------------------+
+            |
+            | uses DI services
+            v
++------------------------------+
+| Module Services              |
+| (e.g. ITestService, IRC etc) |
++------------------------------+
+```
+### Module Registration Flow
+```
++----------------------+
+| Reforia.Backend      |
+| Program.cs           |
++----------+-----------+
+           |
+           | AddRpc()
+           | RpcBuilder
+           v
++----------------------+
+| Reforia.Rpc          |
+| Function Registry    |
+| Discovery + Mapping  |
++----------+-----------+
+           |
+           | AddFunctionsFromAssembly()
+           v
++----------------------+
+| Feature Modules      |
+| - Reforia.TestModule |
+| - Reforia.IrcModule  |
++----------------------+
+```
 
-### Transport + RPC flow
-+---------------------+ SignalR +----------------------+ | Client (Desktop/Web)| <--------------------> | ASP.NET Core Host | +----------+----------+ | Reforia.Backend | | +----------+-----------+ | hub.Invoke("Call", WebRequest) | v v +------+--------------------+ +------+--------------------+ | /hub (AppHub) | | WebDispatcher | | Call(WebRequest) |------------------->| Dispatch(WebRequest) | +---------------------------+ +------+--------------------+ | | resolve + execute v +------------+-------------+ | WebFunction<TReq,TRes> | | (module function) | +------------+-------------+ | | DI services v +------------+-------------+ | Module services (DI) | | e.g. ITestService | +--------------------------+
-
-### Module registration
-+---------------------+ AddRpc() / RpcBuilder +----------------------+ | Reforia.Backend |------------------------------>| Reforia.Rpc | | Program.cs | | registration + scan | +----------+----------+ +----------+-----------+ | | | .AddTourneyModule() / .AddIrcModule() | v v +----------+----------+ +----------+-----------+ | Reforia.TestModule | AddFunctionsFromAssembly() | Function registry | | services + functions|------------------------------>| (discovery + mapping) | +---------------------+ +----------------------+
-
-## Documentation
-
+## Documentation 
 - [Docs/01-Architecture.md](Docs/01-Architecture.md)
 - [Docs/02-Project-Structure.md](Docs/02-Project-Structure.md)
 - [Docs/03-RPC-Functions-System.md](Docs/03-RPC-Functions-System.md)
