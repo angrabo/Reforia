@@ -11,7 +11,7 @@ public class GetTestFunction : WebFunction<GetTestFunctionRequest, GetTestFuncti
     protected override async Task<GetTestFunctionResponse> Handle(GetTestFunctionRequest request, IServiceProvider provider)
     {
         var testService = provider.GetRequiredService<ITestService>();
-        
+
         return new GetTestFunctionResponse
         {
             Players = await testService.GetAll()
