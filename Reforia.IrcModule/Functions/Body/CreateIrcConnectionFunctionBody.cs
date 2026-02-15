@@ -1,6 +1,8 @@
-namespace Reforia.IrcModule.Functions.Request;
+using Reforia.Rpc.Contracts;
 
-public class CreateIrcConnectionFunctionRquest
+namespace Reforia.IrcModule.Functions.Body;
+
+public class CreateIrcConnectionFunctionBody : FunctionBody
 {
     public string ConnectionId { get; set; } = string.Empty;
     public required string Host { get; set; }

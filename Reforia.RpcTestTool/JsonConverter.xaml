@@ -1,0 +1,35 @@
+<Window x:Class="Reforia.RpcTestTool.JsonConverter"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="clr-namespace:Reforia.RpcTestTool"
+        mc:Ignorable="d"
+        Title="JsonConverter" Height="450" Width="800">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Label Content="Wklej klasę C#:" FontWeight="Bold" Grid.Column="0"/>
+        <Label Content="Wygenerowany JSON:" FontWeight="Bold" Grid.Column="1"/>
+
+        <TextBox x:Name="InputCSharp" Grid.Row="1" Grid.Column="0" 
+                 AcceptsReturn="True" VerticalScrollBarVisibility="Auto" 
+                 FontFamily="Consolas" Margin="5" Padding="5"/>
+
+        <TextBox x:Name="OutputJson" Grid.Row="1" Grid.Column="1" 
+                 IsReadOnly="True" VerticalScrollBarVisibility="Auto" 
+                 FontFamily="Consolas" Margin="5" Padding="5" Background="#E8E8E8"/>
+
+        <Button Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" 
+                Content="Konwertuj na JSON" Height="40" Margin="5"
+                Click="ConvertButton_Click" Background="#007ACC" Foreground="White" FontWeight="Bold"/>
+    </Grid>
+</Window>

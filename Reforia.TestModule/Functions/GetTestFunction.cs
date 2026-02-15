@@ -8,7 +8,7 @@ namespace TestModule.Functions;
 
 public class GetTestFunction : WebFunction<GetTestFunctionRequest, GetTestFunctionResponse>
 {
-    protected override async Task<GetTestFunctionResponse> Handle(GetTestFunctionRequest request, IServiceProvider provider)
+    protected override async Task<GetTestFunctionResponse> Handle(GetTestFunctionRequest body, IServiceProvider provider)
     {
         var testService = provider.GetRequiredService<ITestService>();
         
