@@ -1,5 +1,6 @@
-﻿using System.Text.Json;
-using Reforia.Rpc.Contracts;
+﻿using Reforia.Rpc.Contracts;
+using System.Text.Json;
+using Serilog;
 
 namespace Reforia.Rpc.Core;
 
@@ -11,18 +12,25 @@ public abstract class WebFunction<TRequest, TResponse> : IWebFunction where TReq
     {
         try
         {
-            var request = JsonSerializer.Deserialize<TRequest>(jsonBody, new JsonSerializerOptions( ) { PropertyNameCaseInsensitive = true});
-            
+            Log.Information("Executing function {FunctionName}", Name);
+
+            var request = JsonSerializer.Deserialize<TRequest>(jsonBody, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+
             if (request == null)
+            {
+                Log.Warning("Invalid request body for function {FunctionName}", Name);
                 return WebResponse.BadRequest("", new List<string> { "Invalid request body" });
-            
+            }
+
             var result = await Handle(request, provider);
+
+            Log.Information("Function {FunctionName} executed successfully", Name);
             
             return WebResponse.Ok("", result);
         }
         catch (Exception e)
         {
-            //TODO: log
+            Log.Error(e, "Error executing function {FunctionName}", Name);
             return WebResponse.Error("", new List<string> { e.Message });
         }
     }
