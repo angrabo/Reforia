@@ -1,8 +1,0 @@
-using Reforia.Rpc.Contracts;
-
-namespace Reforia.IrcModule.Functions.Responses;
-
-public class CreateIrcConnectionFunctionResponse : FunctionResponse
-{
-    public string ConnectionId { get; set; } = string.Empty;
-}

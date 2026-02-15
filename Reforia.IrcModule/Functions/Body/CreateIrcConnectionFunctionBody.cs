@@ -2,7 +2,7 @@ using Reforia.Rpc.Contracts;
 
 namespace Reforia.IrcModule.Functions.Body;
 
-public class CreateIrcConnectionFunctionBody : FunctionBody
+public class CreateIrcConnectionFunctionBody
 {
     public string ConnectionId { get; set; } = string.Empty;
     public required string Host { get; set; }
