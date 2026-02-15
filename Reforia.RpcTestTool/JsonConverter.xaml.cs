@@ -18,10 +18,6 @@ public partial class JsonConverter : Window
 
         try
         {
-            // Ulepszony Regex: 
-            // 1. Szuka 'public'
-            // 2. Ignoruje opcjonalne 'required', 'static', 'virtual' itp.
-            // 3. Wyciąga typ i nazwę
             var propertyRegex = new Regex(@"public\s+(?:required\s+|virtual\s+|override\s+)?([\w\<\>\[\]\?]+)\s+(\w+)\s*\{");
         
             var matches = propertyRegex.Matches(input);
