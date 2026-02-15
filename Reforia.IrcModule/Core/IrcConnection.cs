@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Net.Sockets;
+using Serilog;
 
 namespace Reforia.IrcModule.Core;
 
@@ -8,22 +9,20 @@ public class IrcConnection : IAsyncDisposable
     public event EventHandler<IrcMessageEventArgs>? MessageReceived;
 
     private readonly TcpClient _client = new();
-    private readonly ILogger<IrcConnection> _logger;
     private StreamReader _reader;
     private StreamWriter _writer;
     private CancellationTokenSource _cts = new();
 
     public string Id { get; }
 
-    public IrcConnection(string id, ILogger<IrcConnection> logger)
+    public IrcConnection(string id)
     {
         Id = id;
-        _logger = logger;
     }
 
     public async Task ConnectAsync(string host, int port, string nick, string password = "")
     {
-        _logger.LogInformation("Connecting IRC client {ConnectionId} to {Host}:{Port} as {Nick}", Id, host, port, nick);
+        Log.Information("Connecting IRC client {ConnectionId} to {Host}:{Port} as {Nick}", Id, host, port, nick);
         await _client.ConnectAsync(host, port);
 
         var stream = _client.GetStream();
@@ -37,7 +36,7 @@ public class IrcConnection : IAsyncDisposable
 
         if (!string.IsNullOrWhiteSpace(password))
         {
-            _logger.LogDebug("Sending PASS for IRC connection {ConnectionId}", Id);
+            Log.Debug("Sending PASS for IRC connection {ConnectionId}", Id);
             await SendAsync($"PASS {password}");
         }
 
@@ -59,7 +58,6 @@ public class IrcConnection : IAsyncDisposable
             if (line == null)
                 break;
 
-            _logger.LogTrace("IRC {ConnectionId} received: {Message}", Id, line);
             MessageReceived?.Invoke(this, new IrcMessageEventArgs
             {
                 ConnectionId = Id,
@@ -68,7 +66,6 @@ public class IrcConnection : IAsyncDisposable
 
             if (line.StartsWith("PING"))
             {
-                _logger.LogDebug("IRC {ConnectionId} received PING", Id);
                 await SendAsync(line.Replace("PING", "PONG"));
             }
         }
@@ -76,7 +73,7 @@ public class IrcConnection : IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        _logger.LogInformation("Disposing IRC connection {ConnectionId}", Id);
+        Log.Information("Disposing IRC connection {ConnectionId}", Id);
         _cts.Cancel();
         _client.Close();
     }
