@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Reforia.Rpc.Contracts;
+﻿using Reforia.Rpc.Contracts;
 using System.Text.Json;
 using Serilog;
 

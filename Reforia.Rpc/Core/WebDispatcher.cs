@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Reforia.Rpc.Contracts;
+﻿using Reforia.Rpc.Contracts;
 using Serilog;
 
 namespace Reforia.Rpc.Core;

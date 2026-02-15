@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Logging;
 using Reforia.IrcModule.Core;
 using ReforiaBackend.Hubs;
 using Serilog;
