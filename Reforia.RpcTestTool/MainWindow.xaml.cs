@@ -228,4 +228,10 @@ public partial class MainWindow : Window
             return false;
         }
     }
+
+    private void BodyGeneratorButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        var window = new JsonConverter();
+        window.Show();
+    }
 }

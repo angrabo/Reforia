@@ -6,9 +6,10 @@ using Serilog;
 
 namespace Reforia.Rpc.Core;
 
-public abstract class WebFunction<TRequest, TResponse> : IWebFunction
+public abstract class WebFunction<TRequest, TResponse> : IWebFunction where TRequest : FunctionBody where TResponse : FunctionResponse
 {
     public string Name => GetType().Name;
+    
     public async Task<WebResponse> Execute(string jsonBody, IServiceProvider provider)
     {
         try
@@ -26,7 +27,7 @@ public abstract class WebFunction<TRequest, TResponse> : IWebFunction
             var result = await Handle(request, provider);
 
             Log.Information("Function {FunctionName} executed successfully", Name);
-
+            
             return WebResponse.Ok("", result);
         }
         catch (Exception e)
@@ -35,6 +36,6 @@ public abstract class WebFunction<TRequest, TResponse> : IWebFunction
             return WebResponse.Error("", new List<string> { e.Message });
         }
     }
-
-    protected abstract Task<TResponse> Handle(TRequest request, IServiceProvider provider);
+    
+    protected abstract Task<TResponse> Handle(TRequest body, IServiceProvider provider);
 }

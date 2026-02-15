@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using System.Net.Sockets;
+﻿using System.Net.Sockets;
 using Serilog;
 
 namespace Reforia.IrcModule.Core;
@@ -8,10 +7,10 @@ public class IrcConnection : IAsyncDisposable
 {
     public event EventHandler<IrcMessageEventArgs>? MessageReceived;
 
-    private readonly TcpClient _client = new();
-    private StreamReader _reader;
-    private StreamWriter _writer;
-    private CancellationTokenSource _cts = new();
+    private readonly TcpClient               _client = new();
+    private          StreamReader            _reader = null!;
+    private          StreamWriter            _writer = null!;
+    private          CancellationTokenSource _cts    = new();
 
     public string Id { get; }
 
@@ -20,6 +19,13 @@ public class IrcConnection : IAsyncDisposable
         Id = id;
     }
 
+    /// <summary>
+    /// Create a connection to the Irc server with provided credentials
+    /// </summary>
+    /// <param name="host">server host</param>
+    /// <param name="port">server port</param>
+    /// <param name="nick">user name</param>
+    /// <param name="password">user password</param>
     public async Task ConnectAsync(string host, int port, string nick, string password = "")
     {
         Log.Information("Connecting IRC client {ConnectionId} to {Host}:{Port} as {Nick}", Id, host, port, nick);
@@ -35,19 +41,89 @@ public class IrcConnection : IAsyncDisposable
         };
 
         if (!string.IsNullOrWhiteSpace(password))
-        {
-            Log.Debug("Sending PASS for IRC connection {ConnectionId}", Id);
             await SendAsync($"PASS {password}");
-        }
 
         await SendAsync($"NICK {nick}");
         await SendAsync($"USER {nick} 0 * :{nick}");
-        await SendAsync($"PRIVMSG BanchoBot :!help");
 
         _ = Task.Run(ReadLoopAsync);
     }
 
-    public Task SendAsync(string message)
+    /// <summary>
+    /// Join channel
+    /// </summary>
+    /// <param name="channel">Channel name (without # char)</param>
+    /// <returns>Is success</returns>
+    public async Task<bool> JoinChannelAsync(string channel)
+    {
+        try
+        {
+            await SendAsync($"JOIN #{channel}");
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Leave channel
+    /// </summary>
+    /// <param name="channel">Channel name (without # char)</param>
+    /// <returns>Is Success</returns>
+    public async Task<bool> LeaveChannelAsync(string channel)
+    {
+        try
+        {
+            await SendAsync($"LEAVE #{channel}");
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Send a message on a channel
+    /// </summary>
+    /// <param name="message">Message content</param>
+    /// <param name="channel">Channel name (without # char)</param>
+    /// <returns>Is success</returns>
+    public async Task<bool> SendChannelMessageAsync(string message, string channel)
+    {
+        try
+        {
+            await SendAsync($"PRIVMSG #{channel} :{message}");
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Send a message to a private user
+    /// </summary>
+    /// <param name="message">Message content</param>
+    /// <param name="username">Username</param>
+    /// <returns>Is success</returns>
+    public async Task<bool> SendPrivateMessageAsync(string message, string username)
+    {
+        try
+        {
+            await SendAsync($"PRIVMSG {username} :{message}");
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+    
+    private Task SendAsync(string message)
         => _writer.WriteLineAsync(message);
 
     private async Task ReadLoopAsync()
@@ -65,9 +141,7 @@ public class IrcConnection : IAsyncDisposable
             });
 
             if (line.StartsWith("PING"))
-            {
                 await SendAsync(line.Replace("PING", "PONG"));
-            }
         }
     }
 

@@ -1,6 +1,8 @@
-﻿namespace TestModule.Functions.Responses;
+﻿using Reforia.Rpc.Contracts;
 
-public class GetTestFunctionResponse
+namespace TestModule.Functions.Responses;
+
+public class GetTestFunctionResponse : FunctionResponse
 {
     public List<string> Players { get; set; } = new();
 }
