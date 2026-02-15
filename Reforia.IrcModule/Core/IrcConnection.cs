@@ -1,4 +1,5 @@
 ﻿using System.Net.Sockets;
+using Serilog;
 
 namespace Reforia.IrcModule.Core;
 
@@ -27,6 +28,7 @@ public class IrcConnection : IAsyncDisposable
     /// <param name="password">user password</param>
     public async Task ConnectAsync(string host, int port, string nick, string password = "")
     {
+        Log.Information("Connecting IRC client {ConnectionId} to {Host}:{Port} as {Nick}", Id, host, port, nick);
         await _client.ConnectAsync(host, port);
 
         var stream = _client.GetStream();
@@ -37,7 +39,7 @@ public class IrcConnection : IAsyncDisposable
             NewLine = "\r\n",
             AutoFlush = true
         };
-        
+
         if (!string.IsNullOrWhiteSpace(password))
             await SendAsync($"PASS {password}");
 
@@ -145,6 +147,7 @@ public class IrcConnection : IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
+        Log.Information("Disposing IRC connection {ConnectionId}", Id);
         _cts.Cancel();
         _client.Close();
     }

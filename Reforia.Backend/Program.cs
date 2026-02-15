@@ -2,6 +2,8 @@ using Reforia.IrcModule;
 using Reforia.Rpc;
 using ReforiaBackend.Extensions;
 using ReforiaBackend.Hubs;
+using Serilog;
+using Serilog.Events;
 using TestModule;
 
 namespace ReforiaBackend;
@@ -10,54 +12,85 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        var builder = WebApplication.CreateBuilder(args);
-        
-        // Add services to the container.
-        builder.Services.AddAuthorization();
-        builder.Services.AddSignalR(options =>
+        var logDirectory = Path.Combine(AppContext.BaseDirectory, "logs");
+        Directory.CreateDirectory(logDirectory);
+        var logPath = Path.Combine(logDirectory, "reforia.log"); // TODO: move log path to configuration.
+
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Debug()
+            .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+            .MinimumLevel.Override("Microsoft.Hosting.Lifetime", LogEventLevel.Information)
+            .Enrich.FromLogContext()
+            .WriteTo.Console()
+            .WriteTo.File(logPath, rollingInterval: RollingInterval.Day)
+            .CreateLogger();
+
+        try
         {
-            options.EnableDetailedErrors = true;
-        });
-        
-        builder.Services.AddLogging();
-        
-        builder.Services.AddReforiaBackend();
-        
-        builder.Services.AddRpc()
-            .AddTourneyModule()
-            .AddIrcModule();
-        
-        
-        builder.Services.AddCors(options =>
-        {
-            options.AddPolicy("desktop", policy =>
+            Log.Information("Starting Reforia backend");
+
+            var builder = WebApplication.CreateBuilder(args);
+            builder.Host.UseSerilog();
+
+            // Add services to the container.
+            builder.Services.AddAuthorization();
+            builder.Services.AddSignalR(options =>
             {
-                policy.WithOrigins("http://localhost:1420", "https://localhost:1420")
-                    .AllowAnyHeader()
-                    .AllowAnyMethod()
-                    .AllowCredentials();
+                options.EnableDetailedErrors = true;
             });
-        });
 
-        builder.Services.AddOpenApi();
+            builder.Services.AddLogging();
 
-        var app = builder.Build();
-        
-        // Configure the HTTP request pipeline.
-        if (app.Environment.IsDevelopment())
-        {
-            app.MapOpenApi();
+            builder.Services.AddReforiaBackend();
+
+            builder.Services.AddRpc()
+                .AddTourneyModule()
+                .AddIrcModule();
+
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("desktop", policy =>
+                {
+                    policy.WithOrigins("http://localhost:1420", "https://localhost:1420")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials();
+                });
+            });
+
+            builder.Services.AddOpenApi();
+
+            var app = builder.Build();
+
+            app.Lifetime.ApplicationStarted.Register(() => Log.Information("Reforia backend started"));
+            app.Lifetime.ApplicationStopping.Register(() => Log.Information("Reforia backend stopping"));
+            app.Lifetime.ApplicationStopped.Register(() => Log.Information("Reforia backend stopped"));
+
+            // Configure the HTTP request pipeline.
+            if (app.Environment.IsDevelopment())
+            {
+                app.MapOpenApi();
+            }
+
+            app.UseSerilogRequestLogging();
+            app.UseHttpsRedirection();
+
+            app.UseCors("desktop");
+
+            app.UseAuthorization();
+
+            app.MapHub<AppHub>("/hub");
+
+            app.Run();
         }
-
-        app.UseHttpsRedirection();
-
-        app.UseCors("desktop");
-        
-        app.UseAuthorization();
-
-        app.MapHub<AppHub>("/hub");
-        
-        app.Run();
-        
+        catch (Exception ex)
+        {
+            Log.Fatal(ex, "Reforia backend terminated unexpectedly");
+        }
+        finally
+        {
+            Log.CloseAndFlush();
+        }
     }
 }
