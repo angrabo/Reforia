@@ -21,8 +21,10 @@ public class Program
             .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
             .MinimumLevel.Override("Microsoft.Hosting.Lifetime", LogEventLevel.Information)
             .Enrich.FromLogContext()
-            .WriteTo.Console()
-            .WriteTo.File(logPath, rollingInterval: RollingInterval.Day)
+            .WriteTo.Console(outputTemplate:
+                             "[{Timestamp:HH:mm:ss} {Level:u3}] {SourceContext} {Message:lj}{NewLine}{Exception}")
+            .WriteTo.File(logPath, rollingInterval: RollingInterval.Day,outputTemplate:
+                          "[{Timestamp:HH:mm:ss} {Level:u3}] {SourceContext} {Message:lj}{NewLine}{Exception}" )
             .CreateLogger();
 
         try

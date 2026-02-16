@@ -18,7 +18,7 @@ public class LeaveIrcChannelFunction : WebFunction<LeaveIrcChannelFunctionBody, 
         if (!manager.TryGet(body.ConnectionId, out var connection))
             throw new Exception("Connection not found");
 
-        var success = await connection.LeaveChannelAsync(body.Channel);
+        var success = await connection.LeaveChannelAsync(body.Channel[1..]);
 
         return new LeaveIrcChannelFunctionResponse()
         {

@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using Serilog;
 
@@ -7,7 +6,6 @@ namespace Reforia.IrcModule.Core;
 public class IrcConnectionManager
 {
     private readonly ConcurrentDictionary<string, IrcConnection> _connections = new();
-    
 
     public async Task<IrcConnection> CreateAsync(string id, string host, int port, string nick, string password = "")
     {
@@ -23,7 +21,7 @@ public class IrcConnectionManager
 
         try
         {
-            await conn.ConnectAsync(host, port, nick, password);
+            await conn.StartAsync(host, port, nick, password);
             Log.Information("IRC connection {ConnectionId} connected", id);
         }
         catch (Exception ex)
@@ -33,14 +31,23 @@ public class IrcConnectionManager
             throw;
         }
 
+        conn.Disposed += OnConnectionDisposed;
         return conn;
     }
 
     public bool TryGet(string id, out IrcConnection connection)
     {
         var found = _connections.TryGetValue(id, out connection!);
+        
         if (!found)
             Log.Debug("IRC connection {ConnectionId} not found", id);
+        
         return found;
+    }
+    
+    private void OnConnectionDisposed(object? sender, string id)
+    {
+        if (_connections.TryRemove(id, out _))
+            Log.Information("IRC connection {ConnectionId} removed from manager", id);
     }
 }

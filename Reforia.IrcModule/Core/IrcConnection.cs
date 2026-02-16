@@ -6,11 +6,25 @@ namespace Reforia.IrcModule.Core;
 public class IrcConnection : IAsyncDisposable
 {
     public event EventHandler<IrcMessageEventArgs>? MessageReceived;
+    public event EventHandler<string>? Disposed;
 
-    private readonly TcpClient               _client = new();
-    private          StreamReader            _reader = null!;
-    private          StreamWriter            _writer = null!;
-    private          CancellationTokenSource _cts    = new();
+    private TcpClient    _client = new();
+    private StreamReader _reader = null!;
+    private StreamWriter _writer = null!;
+
+    private readonly CancellationTokenSource _cts = new();
+
+    private readonly HashSet<string> _joinedChannels = [];
+    private readonly SemaphoreSlim   _sendLock       = new(1, 1);
+
+    private string _host = "";
+    private int    _port;
+    private string _nick     = "";
+    private string _password = "";
+
+    private DateTime _lastMessageReceived = DateTime.UtcNow;
+
+    private static readonly TimeSpan WatchdogTimeout = TimeSpan.FromMinutes(1);
 
     public string Id { get; }
 
@@ -19,17 +33,125 @@ public class IrcConnection : IAsyncDisposable
         Id = id;
     }
 
-    /// <summary>
-    /// Create a connection to the Irc server with provided credentials
-    /// </summary>
-    /// <param name="host">server host</param>
-    /// <param name="port">server port</param>
-    /// <param name="nick">user name</param>
-    /// <param name="password">user password</param>
-    public async Task ConnectAsync(string host, int port, string nick, string password = "")
+    public Task StartAsync(string host, int port, string nick, string password = "")
     {
-        Log.Information("Connecting IRC client {ConnectionId} to {Host}:{Port} as {Nick}", Id, host, port, nick);
-        await _client.ConnectAsync(host, port);
+        _host = host;
+        _port = port;
+        _nick = nick;
+        _password = password;
+
+        _ = Task.Run(ConnectionLoopAsync);
+
+        return Task.CompletedTask;
+    }
+
+    public async Task<bool> JoinChannelAsync(string channel)
+    {
+        try
+        {
+            _joinedChannels.Add(channel);
+            await SendAsync($"JOIN #{channel}");
+            return true;
+        }
+        catch (Exception e)
+        {
+            Log.Error(e, "Could not join channel {Channel}", channel);
+            return false;
+        }
+    }
+
+    public async Task<bool> LeaveChannelAsync(string channel)
+    {
+        try
+        {
+            _joinedChannels.Remove(channel);
+            await SendAsync($"PART #{channel}");
+            return true;
+        }
+        catch (Exception e)
+        {
+            Log.Error(e, "Could not leave channel {Channel}", channel);
+            return false;
+        }
+    }
+
+    public async Task<bool> SendChannelMessageAsync(string message, string channel)
+    {
+        try
+        {
+            await SendAsync($"PRIVMSG #{channel} :{message}");
+            return true;
+        }
+        catch (Exception e)
+        {
+            Log.Error(e, "Could not send channel message on #{Channel}", channel);
+            return false;
+        }
+    }
+
+    public async Task<bool> SendPrivateMessageAsync(string message, string username)
+    {
+        try
+        {
+            await SendAsync($"PRIVMSG {username} :{message}");
+            return true;
+        }
+        catch ( Exception e)
+        {
+            Log.Error(e, "Could not send private message to {Username}", username);
+            return false;
+        }
+    }
+
+    private async Task ConnectionLoopAsync()
+    {
+        var delay = 2000;
+        var retryCount = 0; 
+
+        while (!_cts.IsCancellationRequested || retryCount < 10)
+        {
+            try
+            {
+                Log.Information("Connecting IRC {Id}", Id);
+
+                await ConnectInternalAsync();
+
+                delay = 2000;
+
+                await ReadLoopAsync();
+            }
+            catch (Exception ex)
+            {
+                Log.Warning(ex, "IRC disconnected {Id}", Id);
+            }
+
+            if (_cts.IsCancellationRequested)
+                break;
+
+            Log.Information("Reconnect in {Delay}ms", delay);
+
+            try
+            {
+                await Task.Delay(delay, _cts.Token);
+            }
+            catch
+            {
+                // ignored
+            }
+
+            delay = Math.Min(delay * 2, 30000);
+            retryCount++;
+        }
+
+        await DisposeAsync();
+    }
+
+    private async Task ConnectInternalAsync()
+    {
+        _client.Dispose();
+        _client = new TcpClient();
+
+        await _client.ConnectAsync(_host, _port);
 
         var stream = _client.GetStream();
 
@@ -40,115 +162,112 @@ public class IrcConnection : IAsyncDisposable
             AutoFlush = true
         };
 
-        if (!string.IsNullOrWhiteSpace(password))
-            await SendAsync($"PASS {password}");
+        if (!string.IsNullOrWhiteSpace(_password))
+            await SendAsync($"PASS {_password}");
 
-        await SendAsync($"NICK {nick}");
-        await SendAsync($"USER {nick} 0 * :{nick}");
+        await SendAsync($"NICK {_nick}");
+        await SendAsync($"USER {_nick} 0 * :{_nick}");
 
-        _ = Task.Run(ReadLoopAsync);
+        await RejoinChannels();
+
+        _lastMessageReceived = DateTime.UtcNow;
+        
+        Log.Information("Connected to IRC {Id}", Id);
     }
 
-    /// <summary>
-    /// Join channel
-    /// </summary>
-    /// <param name="channel">Channel name (without # char)</param>
-    /// <returns>Is success</returns>
-    public async Task<bool> JoinChannelAsync(string channel)
+    private async Task RejoinChannels()
     {
-        try
-        {
+        foreach (var channel in _joinedChannels)
             await SendAsync($"JOIN #{channel}");
-            return true;
-        }
-        catch (Exception)
-        {
-            return false;
-        }
     }
-
-    /// <summary>
-    /// Leave channel
-    /// </summary>
-    /// <param name="channel">Channel name (without # char)</param>
-    /// <returns>Is Success</returns>
-    public async Task<bool> LeaveChannelAsync(string channel)
-    {
-        try
-        {
-            await SendAsync($"LEAVE #{channel}");
-            return true;
-        }
-        catch (Exception)
-        {
-            return false;
-        }
-    }
-
-    /// <summary>
-    /// Send a message on a channel
-    /// </summary>
-    /// <param name="message">Message content</param>
-    /// <param name="channel">Channel name (without # char)</param>
-    /// <returns>Is success</returns>
-    public async Task<bool> SendChannelMessageAsync(string message, string channel)
-    {
-        try
-        {
-            await SendAsync($"PRIVMSG #{channel} :{message}");
-            return true;
-        }
-        catch (Exception)
-        {
-            return false;
-        }
-    }
-
-    /// <summary>
-    /// Send a message to a private user
-    /// </summary>
-    /// <param name="message">Message content</param>
-    /// <param name="username">Username</param>
-    /// <returns>Is success</returns>
-    public async Task<bool> SendPrivateMessageAsync(string message, string username)
-    {
-        try
-        {
-            await SendAsync($"PRIVMSG {username} :{message}");
-            return true;
-        }
-        catch (Exception)
-        {
-            return false;
-        }
-    }
-    
-    private Task SendAsync(string message)
-        => _writer.WriteLineAsync(message);
 
     private async Task ReadLoopAsync()
     {
-        while (!_cts.IsCancellationRequested)
+        var watchdog = WatchdogLoopAsync();
+
+        try
         {
-            var line = await _reader.ReadLineAsync();
-            if (line == null)
-                break;
-
-            MessageReceived?.Invoke(this, new IrcMessageEventArgs
+            while (!_cts.IsCancellationRequested)
             {
-                ConnectionId = Id,
-                RawMessage = line
-            });
+                var line = await _reader.ReadLineAsync();
 
-            if (line.StartsWith("PING"))
-                await SendAsync(line.Replace("PING", "PONG"));
+                if (line == null)
+                    throw new Exception("Connection closed");
+
+                _lastMessageReceived = DateTime.UtcNow;
+
+                MessageReceived?.Invoke(this, new IrcMessageEventArgs
+                {
+                    ConnectionId = Id,
+                    RawMessage = line
+                });
+
+                if (!line.StartsWith("PING")) continue;
+
+                var payload = line[5..];
+                await SendAsync($"PONG {payload}");
+            }
+        }
+        finally
+        {
+            try
+            {
+                await watchdog;
+            }
+            catch
+            {
+                // ignored
+            }
         }
     }
 
+    private async Task WatchdogLoopAsync()
+    {
+        while (!_cts.IsCancellationRequested)
+        {
+            await Task.Delay(TimeSpan.FromSeconds(30), _cts.Token);
+
+            if (DateTime.UtcNow - _lastMessageReceived > WatchdogTimeout)
+            {
+                Log.Warning("Watchdog timeout for {Id}", Id);
+                throw new Exception("Watchdog timeout");
+            }
+        }
+    }
+
+
+    private async Task SendAsync(string message)
+    {
+        await _sendLock.WaitAsync();
+
+        try
+        {
+            await _writer.WriteLineAsync(message);
+        }
+        finally
+        {
+            _sendLock.Release();
+        }
+    }
+    
     public async ValueTask DisposeAsync()
     {
-        Log.Information("Disposing IRC connection {ConnectionId}", Id);
-        _cts.Cancel();
-        _client.Close();
+        Log.Information("Disposing IRC connection {Id}", Id);
+
+        await _cts.CancelAsync();
+
+        try
+        {
+            await SendAsync("QUIT");
+        }
+        catch
+        {
+            // ignored
+        }
+
+        _client.Dispose();
+        _sendLock.Dispose();
+        
+        Disposed?.Invoke(this, Id);
     }
 }
