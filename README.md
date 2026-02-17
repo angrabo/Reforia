@@ -7,8 +7,8 @@
 
 ---
 
-## ⚡ Overview
-Reforia is not just a tool — it is a refereeing standard designed to eliminate downtime between maps. Built for competitive osu! communities, it allows referees to focus on the players, not the IRC console.
+## Overview
+Reforia is not just a tool - it is a refereeing standard designed to eliminate downtime between maps. Built for competitive osu! communities, it allows referees to focus on the players, not the IRC console.
 
 ### Why Reforia?
 * **100% Precision** in calculating results.
@@ -17,7 +17,7 @@ Reforia is not just a tool — it is a refereeing standard designed to eliminate
 
 ---
 
-## 🛠 Features
+## Features
 
 | Feature | Description |
 | :--- | :--- |
@@ -28,14 +28,7 @@ Reforia is not just a tool — it is a refereeing standard designed to eliminate
 
 ---
 
-## 📅 Roadmap
-Currently in heavy development. 
-**Next Milestone:** Public Alpha Deployment
-**Target Date:** `21.03.2026`
-
----
-
-## 💻 Tech Stack & Design
+## Tech Stack & Design
 * **Frontend:** Reacts TypeScript
 * **Backend:** Tauri + C# service
 * **Environment:** Designed for high-stakes tournament stages.
