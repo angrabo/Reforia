@@ -4,7 +4,7 @@ using Serilog;
 
 namespace Reforia.Rpc.Core;
 
-public abstract class WebFunction<TRequest, TResponse> : IWebFunction where TRequest : FunctionBody where TResponse : FunctionResponse
+public abstract class WebFunction<TRequest, TResponse> : IWebFunction where TRequest : class where TResponse : class
 {
     public string Name => GetType().Name;
     

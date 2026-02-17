@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Reforia.Rpc.Core;
-using TestModule.Functions.Requests;
-using TestModule.Functions.Responses;
+using TestModule.Functions.Body;
+using TestModule.Functions.Response;
 using TestModule.Services;
 
 namespace TestModule.Functions;

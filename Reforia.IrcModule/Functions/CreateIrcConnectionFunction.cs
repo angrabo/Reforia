@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Reforia.IrcModule.Core;
 using Reforia.IrcModule.Functions.Body;
-using Reforia.IrcModule.Functions.Responses;
+using Reforia.IrcModule.Functions.Response;
 using Reforia.Rpc.Core;
 
 namespace Reforia.IrcModule.Functions;
