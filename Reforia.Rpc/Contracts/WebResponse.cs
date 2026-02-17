@@ -22,6 +22,6 @@ public class WebResponse
     public static WebResponse BadRequest(string requestId, List<string> errors)
         => new() { RequestId = requestId, StatusCode = 400, Errors = errors };
     
-    public static WebResponse Error(string requestId, List<string> errors)
+    public static WebResponse Error(string requestId, List<string> errors, string? errorKey = null)
         => new() { RequestId = requestId, StatusCode = 500, Errors = errors }; 
 }
