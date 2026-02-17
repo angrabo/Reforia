@@ -1,8 +1,8 @@
 # REFORIA // TOTAL CONTROL
 > **The most efficient dashboard for referees od osu! tournaments.** Forget about typing commands. Just click.
-<br>
+
 ![System Status](https://img.shields.io/badge/System_Status-Building-yellow)
-![Release Date](https://img.shields.io/badge/Target_Release-21.03.2026-white)
+![Release Date](https://img.shields.io/badge/Target_Release-14.03.2026-white)
 ![Version](https://img.shields.io/badge/Build-2026-black)
 
 ---
