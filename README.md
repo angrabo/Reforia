@@ -28,13 +28,6 @@ Reforia is not just a tool - it is a refereeing standard designed to eliminate d
 
 ---
 
-## Roadmap
-Currently in heavy development. 
-**Next Milestone:** Public Alpha Deployment
-**Target Date:** `21.03.2026`
-
----
-
 ## Tech Stack & Design
 * **Frontend:** Reacts TypeScript
 * **Backend:** Tauri + C# service
