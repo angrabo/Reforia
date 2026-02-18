@@ -7,4 +7,5 @@ riderModule.iml
 */logs
 *.vs/
 *.db
+Reforia.DeviceApp/reforia.db
 ReforiaBackend.sln.DotSettings.user

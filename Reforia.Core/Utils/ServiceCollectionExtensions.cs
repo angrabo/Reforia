@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Reforia.Core.Common.Config.Interfaces;
 using Reforia.Core.Common.Config.Services;
@@ -9,14 +8,18 @@ using Reforia.Core.Common.Database.Interfaces;
 using Reforia.Core.Modules.Communication.Core;
 using Reforia.Core.Modules.Communication.Interfaces;
 using Reforia.Core.Modules.Irc;
-using Reforia.Core.Modules.Irc.Interfaces;
+using Reforia.Core.Modules.Test.Services;
 
 namespace Reforia.Core.Utils;
 
 public static class ServiceCollectionExtensions
 {
     public static void AddRequiredServices(this IServiceCollection services, ServicesOptionsModel options)
-    {
+{
+#if DEBUG
+        services.AddSingleton<ITestService, TestService>();
+#endif
+        
         services.AddConfigServices();
         services.AddDatabase(options.DatabseConnectionString);
         services.AddIrcModule();
