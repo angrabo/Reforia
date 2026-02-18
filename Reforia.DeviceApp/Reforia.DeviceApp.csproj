@@ -8,6 +8,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.3">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <PackageReference Include="Serilog" Version="4.3.1" />
         <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.1"/>
@@ -15,11 +19,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Reforia.Infrastructure.Db.Abstractions\Reforia.Infrastructure.Db.Abstractions.csproj" />
-      <ProjectReference Include="..\Reforia.IrcModule\Reforia.IrcModule.csproj" />
-      <ProjectReference Include="..\Reforia.Rpc\Reforia.Rpc.csproj" />
-      <ProjectReference Include="..\Reforia.Shared.Config\Reforia.Shared.Config.csproj" />
-      <ProjectReference Include="..\Reforia.TestModule\Reforia.TestModule.csproj" />
+      <ProjectReference Include="..\Reforia.Core\Reforia.Core.csproj" />
     </ItemGroup>
 
 </Project>

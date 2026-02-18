@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using Reforia.Rpc.Contracts;
-using Reforia.Rpc.Core;
+using Reforia.Core.Modules.Communication.Contracts;
+using Reforia.Core.Modules.Communication.Core;
 using Serilog;
 
 namespace ReforiaBackend.Hubs;

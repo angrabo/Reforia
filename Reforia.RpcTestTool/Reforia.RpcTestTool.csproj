@@ -13,7 +13,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Reforia.Rpc\Reforia.Rpc.csproj" />
+      <ProjectReference Include="..\Reforia.Core\Reforia.Core.csproj" />
     </ItemGroup>
 
 </Project>
