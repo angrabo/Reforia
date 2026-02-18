@@ -1,3 +1,7 @@
+using System.Reflection;
+using Microsoft.EntityFrameworkCore;
+using Reforia.Core.Common.Database;
+using Reforia.Core.Utils;
 using ReforiaBackend.Extensions;
 using ReforiaBackend.Hubs;
 using Serilog;
@@ -12,6 +16,7 @@ public class Program
         var logDirectory = Path.Combine(AppContext.BaseDirectory, "logs");
         Directory.CreateDirectory(logDirectory);
         var logPath = Path.Combine(logDirectory, "reforia.log"); // TODO: move log path to configuration.
+        var databasePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "reforia.db");
 
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
@@ -37,13 +42,16 @@ public class Program
             });
 
             builder.Services.AddLogging();
-
-            builder.Services.AddReforiaBackend();
-
-
+            builder.Services.AddReforiaBackend(new ServicesOptionsModel()
+            {
+                DatabseConnectionString = $"Data Source={databasePath}"
+            });
+            builder.WebHost.UseUrls("http://localhost:5727");
+            
+            #if DEBUG
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("desktop", policy =>
+                options.AddPolicy("dev", policy =>
                 {
                     policy.WithOrigins("http://localhost:1420", "https://localhost:1420")
                         .AllowAnyHeader()
@@ -51,15 +59,35 @@ public class Program
                         .AllowCredentials();
                 });
             });
+            #endif
+            
+            #if !DEBUG
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("prod", policy =>
+                {
+                    policy.WithOrigins("http://tauri.localhost")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials();
+                });
+            });
+            #endif
 
             builder.Services.AddOpenApi();
 
             var app = builder.Build();
-
+            
             app.Lifetime.ApplicationStarted.Register(() => Log.Information("Device App started"));
             app.Lifetime.ApplicationStopping.Register(() => Log.Information("Device App stopping"));
             app.Lifetime.ApplicationStopped.Register(() => Log.Information("Device App stopped"));
 
+
+            Console.WriteLine(databasePath);
+            
+            if (!File.Exists(databasePath))
+                InitializeDatabase(app);
+            
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -69,8 +97,14 @@ public class Program
             app.UseSerilogRequestLogging();
             app.UseHttpsRedirection();
 
-            app.UseCors("desktop");
-
+            #if DEBUG
+            app.UseCors("dev");
+            #endif
+            
+            #if !DEBUG
+            app.UseCors("prod");
+            #endif
+            
             app.UseAuthorization();
 
             app.MapHub<AppHub>("/hub");
@@ -84,6 +118,21 @@ public class Program
         finally
         {
             Log.CloseAndFlush();
+        }
+    }
+
+    private static void InitializeDatabase(WebApplication app)
+    {
+        using var scope = app.Services.CreateScope();
+        var services = scope.ServiceProvider;
+        try
+        {
+            var context = services.GetRequiredService<AppDbContext>();
+            context.Database.Migrate();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "An error occurred while migrating the database.");
         }
     }
 }
