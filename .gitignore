@@ -6,4 +6,5 @@ riderModule.iml
 .idea
 */logs
 *.vs/
+*.db
 ReforiaBackend.sln.DotSettings.user
