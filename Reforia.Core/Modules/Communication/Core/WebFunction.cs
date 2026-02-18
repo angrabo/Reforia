@@ -1,5 +1,7 @@
 ﻿using System.Text.Json;
+using Reforia.Core.Common;
 using Reforia.Core.Modules.Communication.Contracts;
+using Reforia.Core.Modules.Communication.Exceptions;
 using Reforia.Core.Modules.Communication.Interfaces;
 using Serilog;
 
@@ -16,21 +18,32 @@ public abstract class WebFunction<TBody, TResponse> : IWebFunction
         try
         {
             if (string.IsNullOrWhiteSpace(jsonBody))
-                return WebResponse.BadRequest("", new List<string> { "Body is required for this function." });
+                return WebResponse.BadRequest("", ErrorCode.CannotDeserializeRequest,
+                                              "Body is required for this function.");
 
-            var body = JsonSerializer.Deserialize<TBody>(jsonBody, 
-                                                               new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            var body = JsonSerializer.Deserialize<TBody>(jsonBody,
+                                                         new JsonSerializerOptions
+                                                             { PropertyNameCaseInsensitive = true });
 
             if (body == null)
-                return WebResponse.BadRequest("", new List<string> { "Invalid request body" });
+                return WebResponse.BadRequest("", ErrorCode.CannotDeserializeRequest);
 
             var result = await Handle(body, provider);
             return WebResponse.Ok("", result);
         }
+        catch (JsonException e)
+        {
+            return WebResponse.BadRequest("", ErrorCode.CannotDeserializeRequest, e.Message);
+        }
+        catch (CommunicationException e)
+        {
+            Log.Error(e, "Error executing {FunctionName}", Name);
+            return WebResponse.Error("", e.ErrorCode, e.Message);
+        }
         catch (Exception e)
         {
             Log.Error(e, "Error executing {FunctionName}", Name);
-            return WebResponse.Error("", new List<string> { e.Message });
+            return WebResponse.Error("", ErrorCode.Unknown, e.Message);
         }
     }
 
@@ -52,7 +65,7 @@ public abstract class WebFunction<TResponse> : IWebFunction
         catch (Exception e)
         {
             Log.Error(e, "Error executing {FunctionName}", Name);
-            return WebResponse.Error("", new List<string> { e.Message });
+            return WebResponse.Error("", ErrorCode.ErrorDuringFunctionExecute, e.Message);
         }
     }
 

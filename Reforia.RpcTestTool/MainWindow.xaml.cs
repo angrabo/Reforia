@@ -16,8 +16,8 @@ public partial class MainWindow : Window
     private static readonly JsonSerializerOptions PrettyJson = new()
     {
         WriteIndented = true,
+        Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() },
         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-        
     };
 
     public MainWindow()
@@ -104,6 +104,8 @@ public partial class MainWindow : Window
             SendButton.IsEnabled = _connection.State == HubConnectionState.Connected;
         }
     }
+    
+    
 
     private void ClearButton_OnClick(object sender, RoutedEventArgs e)
         => ResponseTextBox.Clear();

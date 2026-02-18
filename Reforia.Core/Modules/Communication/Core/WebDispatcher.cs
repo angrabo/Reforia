@@ -1,4 +1,5 @@
-﻿using Reforia.Core.Modules.Communication.Contracts;
+﻿using Reforia.Core.Common;
+using Reforia.Core.Modules.Communication.Contracts;
 using Serilog;
 
 namespace Reforia.Core.Modules.Communication.Core;
@@ -30,8 +31,9 @@ public class WebDispatcher
         }
         catch (Exception e)
         {
-            Log.Error(e, "Failed to dispatch request {RequestId} for {FunctionName}", body.RequestId, body.FunctionName);
-            return WebResponse.Error(body.RequestId, new List<string> { e.Message });
+            var message = $"Failed to dispatch request {body.RequestId} for {body.FunctionName}";
+            Log.Error(e, message);
+            return WebResponse.Error(body.RequestId, ErrorCode.FunctionNotFound, message);
         }
     }
 }
