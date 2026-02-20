@@ -14,7 +14,7 @@ public class AppHub : Hub
         _dispatcher = dispatcher;
     }
 
-    public async Task JoinIrcConnection(string connectionId)
+    public async Task JoinToConnection(string connectionId)
     {
         if (string.IsNullOrWhiteSpace(connectionId))
         {
@@ -26,7 +26,7 @@ public class AppHub : Hub
         await Groups.AddToGroupAsync(Context.ConnectionId, connectionId, Context.ConnectionAborted);
     }
 
-    public async Task LeaveIrcConnection(string connectionId)
+    public async Task LeaveConnection(string connectionId)
     {
         if (string.IsNullOrWhiteSpace(connectionId))
         {
