@@ -30,8 +30,6 @@ public class IrcSignalRBridge : IIrcConnectionObserver
             // TODD: filter and final format
             if (e.RawMessage.Contains("QUIT") || e.RawMessage.Contains("JOIN"))
                 return;
-
-            Console.WriteLine(e.RawMessage);
             
             if (e.RawMessage.Contains("PRIVMSG"))
             {

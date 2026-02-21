@@ -73,7 +73,7 @@ public partial class MainWindow : Window
         if (!IsValidJson(bodyText))
             AppendLog("[ERROR] JSON parse error");
 
-        var request = new WebBody
+        var request = new WebRequest
         {
             FunctionName = functionName,
             RequestId = requestId,

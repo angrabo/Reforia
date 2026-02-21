@@ -1,14 +1,15 @@
 using Reforia.Core.Common.Config.Interfaces;
 using Reforia.Core.Common.Database.Interfaces;
+using Reforia.Core.Modules.Communication.Contracts;
 
 namespace Reforia.Core.Common.Config.Services;
 
 public class ConfigService : IConfigService
 {
-    private readonly IConfigRepository<ConfigItem> _repository;
+    private readonly IConfigRepository _repository;
     private readonly Dictionary<string, string>    _cache;
 
-    public ConfigService(IConfigRepository<ConfigItem> repository)
+    public ConfigService(IConfigRepository repository)
     {
         _repository = repository;
         _cache = new Dictionary<string, string>();
@@ -19,8 +20,9 @@ public class ConfigService : IConfigService
         }
     }
 
-    public async Task<string?> Get(string key)
+    public async Task<string?> Get(EConfigOptions enumKey)
     {
+        var key = enumKey.ToString();
         if (_cache.TryGetValue(key, out var value))
             return value;
 
@@ -34,8 +36,10 @@ public class ConfigService : IConfigService
         return null;
     }
 
-    public async Task Set(string key, string value)
+    public async Task Set(EConfigOptions enumKey, string value)
     {
+        var key = enumKey.ToString();
+        
         _cache[key] = value;
 
         var existing = await _repository.GetByKeyAsync(key);
@@ -50,8 +54,9 @@ public class ConfigService : IConfigService
         }
     }
 
-    public async Task<bool> Remove(string key)
+    public async Task<bool> Remove(EConfigOptions enumKey)
     {
+        var key = enumKey.ToString();
         _cache.Remove(key);
 
         var existing = await _repository.GetByKeyAsync(key);

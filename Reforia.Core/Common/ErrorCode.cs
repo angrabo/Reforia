@@ -8,6 +8,7 @@ public enum ErrorCode
     #region Irc (1000-1999)
     
     CannotGetIrcCredentials = 1000,
+    CannotConnectToIrc = 1001,
 
     #endregion    
     

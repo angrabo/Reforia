@@ -1,13 +1,10 @@
-using System.Linq.Expressions;
-
 namespace Reforia.Core.Common.Database.Interfaces;
 
-public interface IRepository<T> where T : class
+public interface IService<T> where T : class
 {
     Task<T?> GetAsync(int id, CancellationToken ct = default);
     Task<IEnumerable<T>> GetAllAsync(CancellationToken ct = default);
     Task AddAsync(T item, CancellationToken ct = default);
     Task UpdateAsync(T item, CancellationToken ct = default);
     Task DeleteAsync(int id, CancellationToken ct = default);
-    Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = default);
 }

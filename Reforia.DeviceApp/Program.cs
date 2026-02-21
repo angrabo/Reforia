@@ -13,10 +13,8 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        var logDirectory = Path.Combine(AppContext.BaseDirectory, "logs");
-        Directory.CreateDirectory(logDirectory);
-        var logPath = Path.Combine(logDirectory, "reforia.log"); // TODO: move log path to configuration.
-        var databasePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "reforia.db");
+        var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Reforia", "reforia.log"); // TODO: move log path to configuration.
+        var databasePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Reforia", "reforia.db");
 
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
@@ -82,8 +80,6 @@ public class Program
             app.Lifetime.ApplicationStopping.Register(() => Log.Information("Device App stopping"));
             app.Lifetime.ApplicationStopped.Register(() => Log.Information("Device App stopped"));
 
-
-            Console.WriteLine(databasePath);
             
             if (!File.Exists(databasePath))
                 InitializeDatabase(app);

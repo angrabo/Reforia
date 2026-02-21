@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Reforia.Core.Common;
 using Reforia.Core.Common.Config.Interfaces;
+using Reforia.Core.Modules.Communication.Contracts;
 using Reforia.Core.Modules.Communication.Core;
 using Reforia.Core.Modules.Communication.Exceptions;
 using Reforia.Core.Modules.Communication.Functions.Response;
@@ -15,8 +16,8 @@ public class GetIrcCredentialsFunction : WebFunction<GetIrcCredentialsFunctionRe
         if (config == null)
             throw new NullReferenceException(nameof(IConfigService));
 
-        var username = await config.Get("IrcUsername");
-        var password = await config.Get("IrcPassword");
+        var username = await config.Get(EConfigOptions.IrcUsername);
+        var password = await config.Get(EConfigOptions.IrcPassword);
 
         if (username is null || password is null)
             throw new CommunicationException(ErrorCode.CannotGetIrcCredentials, "Credentials are missing");

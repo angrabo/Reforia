@@ -1,6 +1,6 @@
 namespace Reforia.Core.Modules.Communication.Functions.Response;
 
-public class SetIrcCredentialsFunctionResponse
+public class ChangeSettingsFunctionResponse
 {
     public bool Success { get; set; }
 }
