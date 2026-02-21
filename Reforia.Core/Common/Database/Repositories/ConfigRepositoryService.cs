@@ -3,7 +3,7 @@ using Reforia.Core.Common.Database.Interfaces;
 
 namespace Reforia.Core.Common.Database.Repositories;
 
-public class ConfigRepositoryService : GenericRepositoryService<ConfigItem>
+public class ConfigRepositoryService : ARepositoryService<ConfigItem>
 {
     private readonly IConfigRepository _configRepository;
 

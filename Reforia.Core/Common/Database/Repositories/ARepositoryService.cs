@@ -2,11 +2,11 @@ using Reforia.Core.Common.Database.Interfaces;
 
 namespace Reforia.Core.Common.Database.Repositories;
 
-public class GenericRepositoryService<T> : IService<T> where T : class
+public abstract class ARepositoryService<T> : IService<T> where T : class
 {
-    protected readonly IRepository<T> _repository;
+    private readonly IRepository<T> _repository;
 
-    public GenericRepositoryService(IRepository<T> repository)
+    protected ARepositoryService(IRepository<T> repository)
     {
         _repository = repository;
     }
