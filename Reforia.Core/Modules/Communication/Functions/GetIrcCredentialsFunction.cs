@@ -20,7 +20,7 @@ public class GetIrcCredentialsFunction : WebFunction<GetIrcCredentialsFunctionRe
         var password = await config.Get(EConfigOptions.IrcPassword);
 
         if (username is null || password is null)
-            throw new CommunicationException(ErrorCode.CannotGetIrcCredentials, "Credentials are missing");
+            throw new CommunicationException(EErrorCode.CannotGetIrcCredentials, "Credentials are missing");
 
         return new GetIrcCredentialsFunctionResponse()
         {

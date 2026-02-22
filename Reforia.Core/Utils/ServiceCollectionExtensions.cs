@@ -5,7 +5,6 @@ using Reforia.Core.Common.Config.Interfaces;
 using Reforia.Core.Common.Config.Services;
 using Reforia.Core.Common.Database;
 using Reforia.Core.Common.Database.Interfaces;
-using Reforia.Core.Common.Database.Repositories;
 using Reforia.Core.Modules.Communication.Core;
 using Reforia.Core.Modules.Communication.Interfaces;
 using Reforia.Core.Modules.Irc;
@@ -17,10 +16,6 @@ public static class ServiceCollectionExtensions
 {
     public static void AddRequiredServices(this IServiceCollection services, ServicesOptionsModel options)
     {
-#if DEBUG
-        services.AddSingleton<ITestService, TestService>();
-#endif
-
         services.AddDatabase(options.DatabseConnectionString);
         services.AddConfigServices();
         services.AddIrcModule();
@@ -29,7 +24,6 @@ public static class ServiceCollectionExtensions
 
     public static void AddConfigServices(this IServiceCollection services)
     {
-        services.AddScoped<IConfigRepository, ConfigRepository>();
         services.AddScoped<IConfigService, ConfigService>();
     }
 

@@ -4,11 +4,11 @@ namespace Reforia.Core.Modules.Communication.Exceptions;
 
 public class CommunicationException : Exception
 {
-    public ErrorCode ErrorCode { get; }
+    public EErrorCode EErrorCode { get; }
 
-    public CommunicationException(ErrorCode errorCode, string? message = null, Exception? innerException = null) 
-        : base(message ?? $"Error occurred with code: {errorCode}", innerException)
+    public CommunicationException(EErrorCode eErrorCode, string? message = null, Exception? innerException = null) 
+        : base(message ?? $"Error occurred with code: {eErrorCode}", innerException)
     {
-        ErrorCode = errorCode;
+        EErrorCode = eErrorCode;
     }
 }

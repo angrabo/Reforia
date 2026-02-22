@@ -50,10 +50,14 @@ public class CreateIrcConnectionFunction : WebFunction<CreateIrcConnectionFuncti
         var manager = provider.GetRequiredService<IrcConnectionManager>();
 
         var username = await config.Get(EConfigOptions.IrcUsername);
+
+        if (username == "My Angel Cossin")
+            throw new CommunicationException(EErrorCode.UserNotAllowedToConnect, "User is banned");
+        
         var password = await config.Get(EConfigOptions.IrcPassword);
         
         if (username is null || password is null)
-            throw new CommunicationException(ErrorCode.CannotGetIrcCredentials, "IRC credentials are missing");
+            throw new CommunicationException(EErrorCode.CannotGetIrcCredentials, "IRC credentials are missing");
         
         var connectionId = Guid.NewGuid().ToString();
         
@@ -71,7 +75,7 @@ public class CreateIrcConnectionFunction : WebFunction<CreateIrcConnectionFuncti
         catch (Exception e)
         {
             Log.Warning(e, "Failed to create IRC connection with id {ConnectionId}", connectionId);
-            throw new CommunicationException(ErrorCode.CannotConnectToIrc, "Invalid IRC credentials or network error");
+            throw new CommunicationException(EErrorCode.CannotConnectToIrc, "Invalid IRC credentials or network error");
         }
         
         var observers = provider.GetServices<IIrcConnectionObserver>();
