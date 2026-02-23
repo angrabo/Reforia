@@ -1,6 +1,6 @@
 <p align="center">
   <a href="README.md"><img src="https://img.shields.io/badge/Language-English-blue?style=for-the-badge" alt="English"></a>
-  <a href="docs/PL.md"><img src="https://img.shields.io/badge/Język-Polski-red?style=for-the-badge" alt="Polski"></a>
+  <a href="Docs/PL.md"><img src="https://img.shields.io/badge/Język-Polski-red?style=for-the-badge" alt="Polski"></a>
 </p>
 
 ---
