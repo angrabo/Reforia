@@ -1,6 +1,6 @@
+using Reforia.Core.Common.Config.Contracts;
 using Reforia.Core.Common.Config.Interfaces;
 using Reforia.Core.Common.Database.Interfaces;
-using Reforia.Core.Modules.Communication.Contracts;
 
 namespace Reforia.Core.Common.Config.Services;
 

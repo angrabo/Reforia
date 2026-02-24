@@ -1,4 +1,5 @@
-using Reforia.Core.Modules.Communication.Contracts;
+
+using Reforia.Core.Common.Config.Contracts;
 
 namespace Reforia.Core.Common.Config.Interfaces;
 

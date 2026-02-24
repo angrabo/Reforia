@@ -26,6 +26,7 @@ public class IrcConnectionManager
         }
         catch (Exception ex)
         {
+            await conn.DisposeAsync();
             _connections.TryRemove(id, out _);
             Log.Error(ex, "IRC connection {ConnectionId} failed to connect", id);
             throw;
@@ -33,6 +34,22 @@ public class IrcConnectionManager
 
         conn.Disposed += OnConnectionDisposed;
         return conn;
+    }
+    
+    public bool TryGetByUser(string user, out IrcConnection connection)
+    {
+        foreach (var conn in _connections.Values)
+        {
+            if (conn.Nick.Equals(user, StringComparison.OrdinalIgnoreCase))
+            {
+                connection = conn;
+                return true;
+            }
+        }
+
+        connection = null!;
+        Log.Debug("IRC connection for user {User} not found", user);
+        return false;
     }
 
     public bool TryGet(string id, out IrcConnection connection)
@@ -43,6 +60,24 @@ public class IrcConnectionManager
             Log.Debug("IRC connection {ConnectionId} not found", id);
         
         return found;
+    }
+    
+    public async Task<bool> TryRemove(string id)
+    {
+        
+        if (TryGet(id, out var connection))
+        {
+            await connection.DisposeAsync();
+        }
+        
+        var removed = _connections.TryRemove(id, out _);
+        
+        if (removed)
+            Log.Information("IRC connection {ConnectionId} removed from manager", id);
+        else
+            Log.Debug("Attempted to remove IRC connection {ConnectionId} but it was not found", id);
+        
+        return removed;
     }
     
     private void OnConnectionDisposed(object? sender, string id)

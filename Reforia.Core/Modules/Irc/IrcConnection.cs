@@ -7,6 +7,7 @@ public class IrcConnection : IAsyncDisposable
 {
     public event EventHandler<IrcMessageEventArgs>? MessageReceived;
     public event EventHandler<string>? Disposed;
+    public string Nick     = "";
 
     private TcpClient    _client = new();
     private StreamReader _reader = null!;
@@ -19,7 +20,6 @@ public class IrcConnection : IAsyncDisposable
 
     private string _host = "";
     private int    _port;
-    private string _nick     = "";
     private string _password = "";
 
     private DateTime _lastMessageReceived = DateTime.UtcNow;
@@ -37,7 +37,7 @@ public class IrcConnection : IAsyncDisposable
     {
         _host = host;
         _port = port;
-        _nick = nick;
+        Nick = nick;
         _password = password;
 
         var loginTcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -191,8 +191,8 @@ public class IrcConnection : IAsyncDisposable
         if (!string.IsNullOrWhiteSpace(_password))
             await SendAsync($"PASS {_password}");
 
-        await SendAsync($"NICK {_nick}");
-        await SendAsync($"USER {_nick} 0 * :{_nick}");
+        await SendAsync($"NICK {Nick}");
+        await SendAsync($"USER {Nick} 0 * :{Nick}");
 
         await RejoinChannels();
 

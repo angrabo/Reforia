@@ -1,9 +1,10 @@
-namespace Reforia.Core.Modules.Communication.Contracts;
+namespace Reforia.Core.Common.Config.Contracts;
 
 public enum EConfigOptions
 {
     IrcUsername,
     IrcPassword,
     ApiToken,
-    UserHighlight
+    UserHighlight,
+    Language
 }

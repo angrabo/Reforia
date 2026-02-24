@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
+using Reforia.Core.Common.Config.Contracts;
 using Reforia.Core.Common.Config.Interfaces;
-using Reforia.Core.Modules.Communication.Contracts;
 using Reforia.Core.Modules.Communication.Core;
 using Reforia.Core.Modules.Communication.Functions.Body;
 using Reforia.Core.Modules.Communication.Functions.Response;
@@ -21,6 +21,9 @@ public class ChangeSettingsFunction : WebFunction<ChangeSettingsFunctionBody, Ch
 
         if (!string.IsNullOrEmpty(request.IsUserHighlighted.ToString()))
             await configManager.Set(EConfigOptions.UserHighlight, request.IsUserHighlighted.ToString());
+        
+        if (!string.IsNullOrEmpty(request.Language.ToString()))
+            await configManager.Set(EConfigOptions.Language, request.Language.ToString());
         
         
         return new ChangeSettingsFunctionResponse()
