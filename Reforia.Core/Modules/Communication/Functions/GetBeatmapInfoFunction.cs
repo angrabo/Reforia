@@ -1,9 +1,9 @@
 using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Reforia.Core.Common;
+using Reforia.Core.Common.Config.Contracts;
 using Reforia.Core.Common.Config.Interfaces;
 using Reforia.Core.Common.Dto;
-using Reforia.Core.Modules.Communication.Contracts;
 using Reforia.Core.Modules.Communication.Core;
 using Reforia.Core.Modules.Communication.Exceptions;
 using Reforia.Core.Modules.Communication.Functions.Body;

@@ -1,4 +1,3 @@
-using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Reforia.Core.Common.Database;
 using Reforia.Core.Utils;
@@ -15,7 +14,7 @@ public class Program
     {
         var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Reforia", "reforia.log"); // TODO: move log path to configuration.
         var databasePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Reforia", "reforia.db");
-
+        
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
             .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
@@ -32,7 +31,6 @@ public class Program
             var builder = WebApplication.CreateBuilder(args);
             builder.Host.UseSerilog();
 
-            // Add services to the container.
             builder.Services.AddAuthorization();
             builder.Services.AddSignalR(options =>
             {

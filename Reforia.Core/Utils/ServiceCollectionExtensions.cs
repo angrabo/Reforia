@@ -8,7 +8,6 @@ using Reforia.Core.Common.Database.Interfaces;
 using Reforia.Core.Modules.Communication.Core;
 using Reforia.Core.Modules.Communication.Interfaces;
 using Reforia.Core.Modules.Irc;
-using Reforia.Core.Modules.Test.Services;
 
 namespace Reforia.Core.Utils;
 
