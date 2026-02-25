@@ -16,15 +16,25 @@ public class ChangeSettingsFunction : WebFunction<ChangeSettingsFunctionBody, Ch
         if (configManager == null)
             throw new NullReferenceException(nameof(IConfigService));
         
-        if (!string.IsNullOrEmpty(request.ApiToken)) 
-            await configManager.Set(EConfigOptions.ApiToken, request.ApiToken);
-
-        if (!string.IsNullOrEmpty(request.IsUserHighlighted.ToString()))
-            await configManager.Set(EConfigOptions.UserHighlight, request.IsUserHighlighted.ToString());
+        var updates = new Dictionary<EConfigOptions, string?>
+        {
+            { EConfigOptions.ApiToken, request.ApiToken },
+            { EConfigOptions.Language, request.Language },
+            { EConfigOptions.UserHighlight, request.IsUserHighlighted.ToString() },
+            { EConfigOptions.AlertOnMention, request.AlertOnMention.ToString() },
+            { EConfigOptions.AlertOnKeyword, request.AlertOnKeyword.ToString() },
+            { EConfigOptions.HighlightOnKeyword, request.HighlightOnKeyword.ToString() },
+            { EConfigOptions.KeywordList, string.Join(',', request.KeywordList) },
+            { EConfigOptions.ShowBeatmapBanner, request.ShowBeatmapBanner.ToString() }
+        };
         
-        if (!string.IsNullOrEmpty(request.Language.ToString()))
-            await configManager.Set(EConfigOptions.Language, request.Language.ToString());
-        
+        foreach (var (option, value) in updates)
+        {
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                await configManager.Set(option, value);
+            }
+        }
         
         return new ChangeSettingsFunctionResponse()
         {

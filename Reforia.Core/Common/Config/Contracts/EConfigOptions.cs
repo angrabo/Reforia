@@ -6,5 +6,10 @@ public enum EConfigOptions
     IrcPassword,
     ApiToken,
     UserHighlight,
-    Language
+    Language,
+    AlertOnMention,
+    AlertOnKeyword,
+    HighlightOnKeyword,
+    KeywordList,
+    ShowBeatmapBanner
 }
