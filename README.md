@@ -53,6 +53,9 @@ The project is evolving through defined stages:
 - Custom color themes.
 - Personalized command bindings and custom alerts.
 
+
+### Future:
+- Other platforms support
 ---
 
 ## 🤝 Contributing
