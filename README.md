@@ -1,40 +1,67 @@
-# REFORIA // TOTAL CONTROL
-> **The most efficient dashboard for referees od osu! tournaments.** Forget about typing commands. Just click.
-
-![System Status](https://img.shields.io/badge/System_Status-Building-yellow)
-![Release Date](https://img.shields.io/badge/Target_Release-21.03.2026-white)
-![Version](https://img.shields.io/badge/Build-2026-black)
+<p align="center">
+  <a href="README.md"><img src="https://img.shields.io/badge/Language-English-blue?style=for-the-badge" alt="English"></a>
+  <a href="Docs/PL.md"><img src="https://img.shields.io/badge/Język-Polski-red?style=for-the-badge" alt="Polski"></a>
+</p>
 
 ---
 
-## Overview
-Reforia is not just a tool - it is a refereeing standard designed to eliminate downtime between maps. Built for competitive osu! communities, it allows referees to focus on the players, not the IRC console.
-
-### Why Reforia?
-* **100% Precision** in calculating results.
-* **0s Latency** in searching for commands.
-* **Zero Bloat**, all speed.
-
----
-
-## Features
-
-| Feature | Description |
-| :--- | :--- |
-| **01 // Auto-Lobby** | Reads teams and players from the room name. Sets slots. Counts score in real time. |
-| **02 // Client Control** | Automatic replacement of config files. One-click sync with Tourney Client. |
-| **03 // JSON Presets** | Import the entire tournament (mappools, stages, multipliers) in 2 seconds. |
-| **04 // Smart Check** | Validates map compatibility and correct mods (HD/HR/DT) automatically. |
-
----
-
-## Tech Stack & Design
-* **Frontend:** Reacts TypeScript
-* **Backend:** Tauri + C# service
-* **Environment:** Designed for high-stakes tournament stages.
-
----
+# 🟦 Reforia — Refereeing made effortless.
 
 <p align="center">
-  <i>Designed for competitive osu! communities // Build 2026</i>
+  <img src="https://reforia.xyz/images/logo.png" alt="Reforia Logo" width="200">
+  <br>
+  <b>The most efficient dashboard for refereeing osu! tournaments.</b>
+  <br>
+  <i>Forget about IRC commands. Manage mappools, check mods, and control the lobby with a single click.</i>
 </p>
+
+---
+
+## 🚀 Overview
+
+**Reforia** is bridging the gap between raw IRC commands and a seamless tournament experience. Built to empower osu! referees, it provides a visual interface to manage multiplayer lobbies without the need to memorize complex syntax.
+
+> [!IMPORTANT]
+> **Development Phase:** Reforia is currently in its development phase and is being battle-tested during **Gothic Cup 4**.
+
+---
+
+## ✨ Active Features (Stage 1)
+
+Currently, the core functionality includes:
+
+* **💬 IRC Chat Integration:** Send and receive Bancho messages with high-priority integration.
+* **📡 Channel Management:** Manage multiple tournament channels simultaneously with ease.
+* **✅ Ready Check Status:** Visual verification of player readiness in real-time.
+* **🗺️ Mappool Verification:** Real-time map previews and automated verification against tournament pools *(Verification under construction)*.
+
+---
+
+## 🗺️ Roadmap
+
+The project is evolving through defined stages:
+
+### Stage 2: Refinement Tools
+- Integration with tournament client.
+- Keyword-based sound alerts.
+
+### Stage 3: GUI Mappool & Mods
+- Full GUI for mappool selection.
+- Intuitive mod management system.
+
+### Stage 4: Advanced Personalization
+- Custom color themes.
+- Personalized command bindings and custom alerts.
+
+---
+
+## 🤝 Contributing
+
+As an open-source project, we welcome contributions! Feel free to check our [GitHub](https://github.com/angrabo/Reforia) for the latest code and issues.
+
+---
+
+## ⚖️ Disclaimer
+
+Reforia is **not affiliated** with ppy Pty Ltd. 
+&copy; 2026 Designed for the Community.
