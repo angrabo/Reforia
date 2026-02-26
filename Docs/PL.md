@@ -8,8 +8,6 @@
   <i>Zapomnij o komendach IRC. Zarządzaj mappoolami, sprawdzaj mody i kontroluj lobby jednym kliknięciem.</i>
 </p>
 
-[🇺🇸 English](README.md) | [🇵🇱 Polski](README_PL.md)
-
 ---
 
 ## 🚀 Przegląd
