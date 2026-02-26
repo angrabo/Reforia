@@ -22,7 +22,7 @@
 **Reforia** is bridging the gap between raw IRC commands and a seamless tournament experience. Built to empower osu! referees, it provides a visual interface to manage multiplayer lobbies without the need to memorize complex syntax.
 
 > [!IMPORTANT]
-> **Development Phase:** Reforia is currently in its development phase and is being battle-tested during **Gothic Cup 4**.
+> **Development Phase:** Reforia is currently in its development phase.
 
 ---
 
