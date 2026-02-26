@@ -1,27 +1,21 @@
-﻿namespace Reforia.Core.Modules.Communication.Contracts;
+﻿using Reforia.Core.Common;
+
+namespace Reforia.Core.Modules.Communication.Contracts;
 
 public class WebResponse
 {
     public string RequestId { get; set; } = string.Empty;
     public int StatusCode { get; set; }
     public object? Body { get; set; }
-    public List<string>? Errors { get; set; }
-    
-    public static WebResponse Ok(object? body) 
-        => new() { StatusCode = 200, Body = body, Errors = []};
-    
-    public static WebResponse BadRequest(List<string> errors) 
-        => new() { StatusCode = 403, Errors = errors };
-    
-    public static WebResponse Error(List<string> errors) 
-        => new() { StatusCode = 500, Errors = errors };
+    public ErrorCode ErrorCode { get; set; }
+    public string Detials { get; set; } = string.Empty;
     
     public static WebResponse Ok(string requestId, object? body) 
-        => new() { RequestId = requestId, StatusCode = 200, Body = body, Errors = []};
+        => new() { RequestId = requestId, StatusCode = 200, Body = body, ErrorCode = ErrorCode.None};
     
-    public static WebResponse BadRequest(string requestId, List<string> errors)
-        => new() { RequestId = requestId, StatusCode = 400, Errors = errors };
+    public static WebResponse BadRequest(string requestId, ErrorCode error = ErrorCode.Unknown, string details = "")
+        => new() { RequestId = requestId, StatusCode = 400, ErrorCode = error, Detials = details };
     
-    public static WebResponse Error(string requestId, List<string> errors, string? errorKey = null)
-        => new() { RequestId = requestId, StatusCode = 500, Errors = errors }; 
+    public static WebResponse Error(string requestId, ErrorCode error = ErrorCode.Unknown, string details = "")
+        => new() { RequestId = requestId, StatusCode = 500, ErrorCode = error, Detials = details}; 
 }
