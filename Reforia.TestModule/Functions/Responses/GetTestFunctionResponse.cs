@@ -1,4 +1,4 @@
-﻿namespace ReforiaBackend.Rpc.Functions.Responses;
+﻿namespace TestModule.Functions.Responses;
 
 public class GetTestFunctionResponse
 {

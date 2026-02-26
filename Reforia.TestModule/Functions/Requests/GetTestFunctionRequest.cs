@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace ReforiaBackend.Rpc.Functions.Requests;
+namespace TestModule.Functions.Requests;
 
 public class GetTestFunctionRequest
 {

@@ -1,4 +1,6 @@
-﻿namespace ReforiaBackend.Rpc.Core;
+﻿using Microsoft.Extensions.DependencyInjection;
+
+namespace Reforia.Rpc.Core;
 
 public class WebFunctionRegistry
 {

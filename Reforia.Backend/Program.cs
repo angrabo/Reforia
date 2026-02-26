@@ -1,5 +1,6 @@
-using ReforiaBackend.Extensions;
+using Reforia.Rpc;
 using ReforiaBackend.Hubs;
+using TestModule;
 
 namespace ReforiaBackend;
 
@@ -8,11 +9,15 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-
+        
+        // Add services to the container.
         builder.Services.AddAuthorization();
-        builder.Services.AddApplicationServices();
-        builder.Services.AddRpcFunctions();
         builder.Services.AddSignalR();
+        builder.Services.AddLogging();
+        
+        builder.Services.AddRpc()
+            .AddTourneyModule();
+        
         
         builder.Services.AddCors(options =>
         {
@@ -28,7 +33,7 @@ public class Program
         builder.Services.AddOpenApi();
 
         var app = builder.Build();
-
+        
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
         {
@@ -44,5 +49,6 @@ public class Program
         app.MapHub<AppHub>("/hub");
         
         app.Run();
+        
     }
 }

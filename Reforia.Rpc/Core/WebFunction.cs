@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
+using Reforia.Rpc.Contracts;
 
-namespace ReforiaBackend.Rpc.Core;
+namespace Reforia.Rpc.Core;
 
 public abstract class WebFunction<TRequest, TResponse> : IWebFunction
 {

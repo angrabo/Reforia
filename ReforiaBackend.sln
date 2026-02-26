@@ -1,6 +1,18 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReforiaBackend", "ReforiaBackend\ReforiaBackend.csproj", "{8622BB61-AC29-4924-B250-377C2342A314}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reforia.Backend", "Reforia.Backend\Reforia.Backend.csproj", "{8622BB61-AC29-4924-B250-377C2342A314}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reforia.RpcTestTool", "Reforia.RpcTestTool\Reforia.RpcTestTool.csproj", "{A32B306E-2ACB-435E-BFF3-910F5766E6E1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{E1331047-5C83-481D-A516-A99A2B2F13B5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ThirdParty", "ThirdParty", "{1245872B-9493-4E65-90A1-04385CA241A8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reforia.Rpc", "Reforia.Rpc\Reforia.Rpc.csproj", "{04828ED7-743D-4CC9-8B04-AB687ECF8B57}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{1FA84EAD-7500-48A9-B7E3-175B903146BC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reforia.TestModule", "Reforia.TestModule\Reforia.TestModule.csproj", "{9F56E26E-E547-4EF7-AA61-9274F06C476B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -12,5 +24,22 @@ Global
 		{8622BB61-AC29-4924-B250-377C2342A314}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8622BB61-AC29-4924-B250-377C2342A314}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8622BB61-AC29-4924-B250-377C2342A314}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A32B306E-2ACB-435E-BFF3-910F5766E6E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A32B306E-2ACB-435E-BFF3-910F5766E6E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A32B306E-2ACB-435E-BFF3-910F5766E6E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A32B306E-2ACB-435E-BFF3-910F5766E6E1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04828ED7-743D-4CC9-8B04-AB687ECF8B57}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04828ED7-743D-4CC9-8B04-AB687ECF8B57}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04828ED7-743D-4CC9-8B04-AB687ECF8B57}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04828ED7-743D-4CC9-8B04-AB687ECF8B57}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F56E26E-E547-4EF7-AA61-9274F06C476B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F56E26E-E547-4EF7-AA61-9274F06C476B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F56E26E-E547-4EF7-AA61-9274F06C476B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F56E26E-E547-4EF7-AA61-9274F06C476B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A32B306E-2ACB-435E-BFF3-910F5766E6E1} = {E1331047-5C83-481D-A516-A99A2B2F13B5}
+		{04828ED7-743D-4CC9-8B04-AB687ECF8B57} = {1245872B-9493-4E65-90A1-04385CA241A8}
+		{9F56E26E-E547-4EF7-AA61-9274F06C476B} = {1FA84EAD-7500-48A9-B7E3-175B903146BC}
 	EndGlobalSection
 EndGlobal

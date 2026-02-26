@@ -1,8 +1,10 @@
-﻿using Reforia.Rpc.Core;
-using ReforiaBackend.Rpc.Functions.Requests;
-using ReforiaBackend.Rpc.Functions.Responses;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Reforia.Rpc.Core;
+using TestModule.Functions.Requests;
+using TestModule.Functions.Responses;
+using TestModule.Services;
 
-namespace ReforiaBackend.Rpc.Functions;
+namespace TestModule.Functions;
 
 public class GetTestFunction : WebFunction<GetTestFunctionRequest, GetTestFunctionResponse>
 {

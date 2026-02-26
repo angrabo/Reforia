@@ -1,4 +1,4 @@
-﻿namespace ReforiaBackend.Services;
+﻿namespace TestModule.Services;
 
 public class TestService : ITestService
 {

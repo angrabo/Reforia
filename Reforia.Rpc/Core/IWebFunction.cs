@@ -1,4 +1,6 @@
-﻿namespace ReforiaBackend.Rpc.Core;
+﻿using Reforia.Rpc.Contracts;
+
+namespace Reforia.Rpc.Core;
 
 public interface IWebFunction
 {
