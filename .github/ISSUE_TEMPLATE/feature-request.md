@@ -7,14 +7,18 @@ assignees: ''
 
 ---
 
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+### Summary
+Implement a new function that sends logs to the device and supports saving and logging these entries to a log file for persistence and troubleshooting.
 
-**Describe the solution you'd like**
-A clear and concise description of what you want to happen.
+### Details
+- Create a function that can send log messages directly to the device for real-time monitoring.
+- Extend the same functionality to save the logs locally in a log file.
+- Ensure that logs include timestamps and relevant context.
+- Consider log rotation or file size management to prevent uncontrolled log file growth.
 
-**Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
+### How to implement
+Leave empty if you have no idea what should be here
 
-**Additional context**
-Add any other context or screenshots about the feature request here.
+### Benefits
+- Easier troubleshooting by tracking events and errors on the device.
+- Persistent record of activity for future review.
