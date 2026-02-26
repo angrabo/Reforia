@@ -14,8 +14,6 @@ ASP.NET Core backend exposing a **SignalR** hub (`/hub`) and a custom **RPC** la
   Example module showing typed functions (`WebFunction<TRequest,TResponse>`).
 - `Reforia.RpcTestTool` (WPF)  
   Local test client/UI.
-- `WebScoketTestTool`  
-  Local CLI/tooling for quick transport tests.
 - `Docs/`  
   Technical documentation.
 
