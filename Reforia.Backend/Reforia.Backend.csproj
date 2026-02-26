@@ -13,10 +13,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Utils\" />
-    </ItemGroup>
-
-    <ItemGroup>
+      <ProjectReference Include="..\Reforia.IrcModule\Reforia.IrcModule.csproj" />
       <ProjectReference Include="..\Reforia.Rpc\Reforia.Rpc.csproj" />
       <ProjectReference Include="..\Reforia.TestModule\Reforia.TestModule.csproj" />
     </ItemGroup>

@@ -12,6 +12,22 @@ public class AppHub : Hub
     {
         _dispatcher = dispatcher;
     }
-    
+
+    public async Task JoinIrcConnection(string connectionId)
+    {
+        if (string.IsNullOrWhiteSpace(connectionId))
+            throw new HubException("connectionId is required.");
+
+        await Groups.AddToGroupAsync(Context.ConnectionId, connectionId, Context.ConnectionAborted);
+    }
+
+    public async Task LeaveIrcConnection(string connectionId)
+    {
+        if (string.IsNullOrWhiteSpace(connectionId))
+            return;
+
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, connectionId, Context.ConnectionAborted);
+    }
+
     public async Task<WebResponse> Call(WebRequest request) => await _dispatcher.Dispatch(request);
 }

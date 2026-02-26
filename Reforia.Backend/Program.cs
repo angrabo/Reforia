@@ -1,4 +1,6 @@
+using Reforia.IrcModule;
 using Reforia.Rpc;
+using ReforiaBackend.Extensions;
 using ReforiaBackend.Hubs;
 using TestModule;
 
@@ -12,11 +14,18 @@ public class Program
         
         // Add services to the container.
         builder.Services.AddAuthorization();
-        builder.Services.AddSignalR();
+        builder.Services.AddSignalR(options =>
+        {
+            options.EnableDetailedErrors = true;
+        });
+        
         builder.Services.AddLogging();
         
+        builder.Services.AddReforiaBackend();
+        
         builder.Services.AddRpc()
-            .AddTourneyModule();
+            .AddTourneyModule()
+            .AddIrcModule();
         
         
         builder.Services.AddCors(options =>
