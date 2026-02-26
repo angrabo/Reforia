@@ -2,7 +2,7 @@
 name: Bug Report
 about: Create a bug report
 title: "[BUG]"
-labels: bug, feature
+labels: bug
 assignees: ''
 
 ---
@@ -33,16 +33,7 @@ assignees: ''
 ---
 
 ### Technical Context
-- **Error Logs/Trace:** [Paste error codes, stack traces, or links to monitoring tools like Sentry/CloudWatch]
-- **Data Handling:** [Mention specific IDs, payload examples, or timestamp issues involved]
-- **Integration:** [Which API or third-party service is failing?]
+[Paste error codes, stack traces, links or logs file fragments]
 
 ### Impact
-- **Workflow:** [How does this stop the user? e.g., Prevents completion of checkout]
-- **Reliability:** [Does this cause data corruption or sync issues?]
-- **User Experience:** [e.g., Highly frustrating, leads to user churn]
-
-### Acceptance Criteria (Fix Verification)
-- [ ] **Functional:** The bug is no longer reproducible using the steps above.
-- [ ] **Stability:** The fix handles edge cases (e.g., empty fields, slow network) without crashing.
-- [ ] **Regression:** Existing features in the same module continue to function correctly.
+[How does this stop the user? e.g., Prevents completion of checkout]
