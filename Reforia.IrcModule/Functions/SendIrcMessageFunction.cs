@@ -1,0 +1,33 @@
+using Microsoft.Extensions.DependencyInjection;
+using Reforia.IrcModule.Core;
+using Reforia.IrcModule.Functions.Body;
+using Reforia.IrcModule.Functions.Responses;
+using Reforia.Rpc.Core;
+
+namespace Reforia.IrcModule.Functions;
+
+public class SendIrcMessageFunction : WebFunction<SendIrcMessageFunctionBody, SendIrcMessageFunctionResponse>
+{
+    protected override async Task<SendIrcMessageFunctionResponse> Handle(SendIrcMessageFunctionBody body, IServiceProvider provider)
+    {
+        bool success;
+        
+        var manager = provider.GetService<IrcConnectionManager>();
+        if (manager is null)
+            throw new Exception("IrcManager not found");
+
+        if (!manager.TryGet(body.ConnectionId, out var connection))
+            throw new Exception("Connection not found");
+        
+        if (body.Channel.Contains('#'))
+            success = await connection.SendChannelMessageAsync(body.Message, body.Channel[1..]);
+        else
+            success = await connection.SendPrivateMessageAsync(body.Message, body.Channel);
+        
+        return new SendIrcMessageFunctionResponse()
+        {
+            Success = success,
+            ConnectionId = body.ConnectionId
+        };
+    }
+}

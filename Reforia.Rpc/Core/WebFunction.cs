@@ -3,7 +3,7 @@ using Reforia.Rpc.Contracts;
 
 namespace Reforia.Rpc.Core;
 
-public abstract class WebFunction<TRequest, TResponse> : IWebFunction
+public abstract class WebFunction<TRequest, TResponse> : IWebFunction where TRequest : FunctionBody where TResponse : FunctionResponse
 {
     public string Name => GetType().Name;
     
@@ -27,5 +27,5 @@ public abstract class WebFunction<TRequest, TResponse> : IWebFunction
         }
     }
     
-    protected abstract Task<TResponse> Handle(TRequest request, IServiceProvider provider);
+    protected abstract Task<TResponse> Handle(TRequest body, IServiceProvider provider);
 }

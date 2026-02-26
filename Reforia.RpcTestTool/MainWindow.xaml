@@ -68,24 +68,24 @@
                     <ColumnDefinition Width="280"/>
                     <ColumnDefinition Width="12"/>
                     <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="220"/>
                     <ColumnDefinition Width="12"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="160"/>
-                    <ColumnDefinition Width="12"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="160"/>
+                    <ColumnDefinition Width="120"/>
                 </Grid.ColumnDefinitions>
 
                 <TextBlock Grid.Column="0" VerticalAlignment="Center" Text="FunctionName:"/>
                 <TextBox Grid.Column="1" x:Name="FunctionNameTextBox" Margin="6,0,0,0"
                          VerticalAlignment="Center" Text="GetTestFunction"/>
-
-                <TextBlock Grid.Column="3" VerticalAlignment="Center" Text="RequestId:"/>
-                <TextBox Grid.Column="4" x:Name="RequestIdTextBox" Margin="6,0,0,0"
+                <Button Grid.Column="3" Content="Body Generator" Click="BodyGeneratorButton_OnClick"/>
+                <TextBlock Grid.Column="5" VerticalAlignment="Center" Text="RequestId:"/>
+                <TextBox Grid.Column="6" x:Name="RequestIdTextBox" Margin="6,0,0,0"
                          VerticalAlignment="Center" IsReadOnly="True"/>
 
-                <Button Grid.Column="6" x:Name="NewRequestIdButton" Margin="6,0,0,0"
+                <Button Grid.Column="8" x:Name="NewRequestIdButton" Margin="6,0,0,0"
                         Content="Refresh request Id" Click="NewRequestIdButton_OnClick"/>
 
                 <Button Grid.Column="9" x:Name="SendButton" Margin="6,0,0,0"
