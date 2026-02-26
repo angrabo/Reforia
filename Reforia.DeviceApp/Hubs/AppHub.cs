@@ -38,9 +38,9 @@ public class AppHub : Hub
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, connectionId, Context.ConnectionAborted);
     }
 
-    public async Task<WebResponse> Call(WebBody body)
+    public async Task<WebResponse> Call(WebRequest request)
     {
-        Log.Debug("Dispatching request {RequestId} to {FunctionName}", body.RequestId, body.FunctionName);
-        return await _dispatcher.Dispatch(body);
+        Log.Debug("Dispatching request {RequestId} to {FunctionName}", request.RequestId, request.FunctionName);
+        return await _dispatcher.Dispatch(request);
     }
 }

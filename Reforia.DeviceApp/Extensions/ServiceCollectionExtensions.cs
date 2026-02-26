@@ -1,4 +1,4 @@
-﻿using Reforia.Core.Modules.Irc.Interfaces;
+using Reforia.Core.Modules.Irc.Interfaces;
 using Reforia.Core.Utils;
 using ReforiaBackend.Utils;
 
@@ -6,12 +6,9 @@ namespace ReforiaBackend.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static void AddReforiaBackend(this IServiceCollection services)
+    public static void AddReforiaBackend(this IServiceCollection services, ServicesOptionsModel options)
     {
         services.AddSingleton<IIrcConnectionObserver, IrcSignalRBridge>();
-        services.AddRequiredServices(new ServicesOptionsModel()
-        {
-            DatabseConnectionString = "Data Source=reforia.db"
-        });        
+        services.AddRequiredServices(options);        
     }
 }
