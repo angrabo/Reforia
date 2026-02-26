@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.SignalR;
 using Reforia.IrcModule.Core;
 using ReforiaBackend.Hubs;
+using Serilog;
 
 namespace ReforiaBackend.Utils;
 
@@ -15,14 +16,22 @@ public class IrcSignalRBridge : IIrcConnectionObserver
 
     public Task AttachAsync(IrcConnection connection, CancellationToken ct = default)
     {
+        Log.Information("Attaching IRC connection {ConnectionId} to SignalR bridge", connection.Id);
         connection.MessageReceived += OnMessage;
         return Task.CompletedTask;
     }
 
-    private void OnMessage(object? sender, IrcMessageEventArgs e)
+    private async void OnMessage(object? sender, IrcMessageEventArgs e)
     {
-        _ = _hub.Clients
-            .Group(e.ConnectionId)
+        try
+        {
+            await _hub.Clients
+                .Group(e.ConnectionId)
                 .SendAsync("ircMessage", e.RawMessage);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Failed to forward IRC message from {ConnectionId}", e.ConnectionId);
+        }
     }
 }
