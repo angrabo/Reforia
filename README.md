@@ -54,8 +54,8 @@ The project is evolving through defined stages:
 - Personalized command bindings and custom alerts.
 
 
-#### Future:
-Other platforms support
+### Future:
+- Other platforms support
 ---
 
 ## 🤝 Contributing
