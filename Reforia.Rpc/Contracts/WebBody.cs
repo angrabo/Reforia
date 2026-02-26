@@ -1,6 +1,6 @@
 ﻿namespace Reforia.Rpc.Contracts;
 
-public class WebRequest
+public class WebBody
 {
     public string FunctionName { get; set; } = string.Empty;
     public string RequestId { get; set; } = string.Empty;
