@@ -1,5 +1,5 @@
 ﻿using System.Text.Encodings.Web;
-using Reforia.Rpc.Contracts;
+using Reforia.Core.Modules.Communication.Contracts;
 
 namespace Reforia.RpcTestTool;
 

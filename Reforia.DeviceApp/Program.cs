@@ -1,10 +1,8 @@
-using Reforia.IrcModule;
-using Reforia.Rpc;
+using Reforia.Core.Utils;
 using ReforiaBackend.Extensions;
 using ReforiaBackend.Hubs;
 using Serilog;
 using Serilog.Events;
-using TestModule;
 
 namespace ReforiaBackend;
 
@@ -42,10 +40,6 @@ public class Program
             builder.Services.AddLogging();
 
             builder.Services.AddReforiaBackend();
-
-            builder.Services.AddRpc()
-                .AddTourneyModule()
-                .AddIrcModule();
 
 
             builder.Services.AddCors(options =>
