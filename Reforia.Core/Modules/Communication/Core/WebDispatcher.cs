@@ -33,7 +33,7 @@ public class WebDispatcher
         {
             var message = $"Failed to dispatch request {request.RequestId} for {request.FunctionName}";
             Log.Error(e, message);
-            return WebResponse.Error(request.RequestId, ErrorCode.FunctionNotFound, message);
+            return WebResponse.Error(request.RequestId, EErrorCode.FunctionNotFound, message);
         }
     }
 }

@@ -1,6 +1,6 @@
 namespace Reforia.Core.Common;
 
-public enum ErrorCode
+public enum EErrorCode
 {
     None = 0,
     Unknown = 1,
@@ -9,6 +9,7 @@ public enum ErrorCode
     
     CannotGetIrcCredentials = 1000,
     CannotConnectToIrc = 1001,
+    UserNotAllowedToConnect = 1002,
 
     #endregion    
     
@@ -18,6 +19,7 @@ public enum ErrorCode
     CannotDeserializeRequest = 2000,
     ErrorDuringFunctionExecute = 2001,
     FunctionNotFound = 2002,
+    CannotGetApiData = 2003,
 
     #endregion
 

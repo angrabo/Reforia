@@ -18,7 +18,7 @@ public abstract class WebFunction<TBody, TResponse> : IWebFunction
         try
         {
             if (string.IsNullOrWhiteSpace(jsonBody))
-                return WebResponse.BadRequest("", ErrorCode.CannotDeserializeRequest,
+                return WebResponse.BadRequest("", EErrorCode.CannotDeserializeRequest,
                                               "Body is required for this function.");
 
             var body = JsonSerializer.Deserialize<TBody>(jsonBody,
@@ -26,24 +26,24 @@ public abstract class WebFunction<TBody, TResponse> : IWebFunction
                                                              { PropertyNameCaseInsensitive = true });
 
             if (body == null)
-                return WebResponse.BadRequest("", ErrorCode.CannotDeserializeRequest);
+                return WebResponse.BadRequest("", EErrorCode.CannotDeserializeRequest);
 
             var result = await Handle(body, provider);
             return WebResponse.Ok("", result);
         }
         catch (JsonException e)
         {
-            return WebResponse.BadRequest("", ErrorCode.CannotDeserializeRequest, e.Message);
+            return WebResponse.BadRequest("", EErrorCode.CannotDeserializeRequest, e.Message);
         }
         catch (CommunicationException e)
         {
             Log.Error(e, "Error executing {FunctionName}", Name);
-            return WebResponse.Error("", e.ErrorCode, e.Message);
+            return WebResponse.Error("", e.EErrorCode, e.Message);
         }
         catch (Exception e)
         {
             Log.Error(e, "Error executing {FunctionName}", Name);
-            return WebResponse.Error("", ErrorCode.Unknown, e.Message);
+            return WebResponse.Error("", EErrorCode.Unknown, e.Message);
         }
     }
 
@@ -65,12 +65,12 @@ public abstract class WebFunction<TResponse> : IWebFunction
         catch (CommunicationException e)
         {
             Log.Error(e, "Error executing {FunctionName}", Name);
-            return WebResponse.Error("", e.ErrorCode, e.Message);
+            return WebResponse.Error("", e.EErrorCode, e.Message);
         }
         catch (Exception e)
         {
             Log.Error(e, "Error executing {FunctionName}", Name);
-            return WebResponse.Error("", ErrorCode.ErrorDuringFunctionExecute, e.Message);
+            return WebResponse.Error("", EErrorCode.ErrorDuringFunctionExecute, e.Message);
         }
     }
 
