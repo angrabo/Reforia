@@ -1,6 +1,6 @@
 ﻿namespace Reforia.Core.Modules.Communication.Contracts;
 
-public class WebBody
+public class WebRequest
 {
     public string FunctionName { get; set; } = string.Empty;
     public string RequestId { get; set; } = string.Empty;

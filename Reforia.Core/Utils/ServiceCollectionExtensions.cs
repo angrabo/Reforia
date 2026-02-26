@@ -5,6 +5,7 @@ using Reforia.Core.Common.Config.Interfaces;
 using Reforia.Core.Common.Config.Services;
 using Reforia.Core.Common.Database;
 using Reforia.Core.Common.Database.Interfaces;
+using Reforia.Core.Common.Database.Repositories;
 using Reforia.Core.Modules.Communication.Core;
 using Reforia.Core.Modules.Communication.Interfaces;
 using Reforia.Core.Modules.Irc;
@@ -15,32 +16,33 @@ namespace Reforia.Core.Utils;
 public static class ServiceCollectionExtensions
 {
     public static void AddRequiredServices(this IServiceCollection services, ServicesOptionsModel options)
-{
+    {
 #if DEBUG
         services.AddSingleton<ITestService, TestService>();
 #endif
-        
-        services.AddConfigServices();
+
         services.AddDatabase(options.DatabseConnectionString);
+        services.AddConfigServices();
         services.AddIrcModule();
         services.AddCommunicationModule();
     }
-    
+
     public static void AddConfigServices(this IServiceCollection services)
     {
+        services.AddScoped<IConfigRepository, ConfigRepository>();
         services.AddScoped<IConfigService, ConfigService>();
     }
-    
+
     public static void AddIrcModule(this IServiceCollection services)
     {
         services.AddSingleton<IrcConnectionManager>();
     }
-    
+
     public static void AddCommunicationModule(this IServiceCollection services)
     {
         services.AddScoped<WebFunctionRegistry>();
         services.AddScoped<WebDispatcher>();
-        
+
         services.Scan(scan => scan
                           .FromAssemblies(Assembly.GetExecutingAssembly())
                           .AddClasses(c => c.AssignableTo<IWebFunction>())
@@ -58,6 +60,5 @@ public static class ServiceCollectionExtensions
                           .AddClasses(classes => classes.AssignableTo(typeof(IRepository<>)))
                           .AsImplementedInterfaces()
                           .WithScopedLifetime());
-
     }
 }

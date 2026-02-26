@@ -15,25 +15,25 @@ public class WebDispatcher
         _provider = provider;
     }
     
-    public async Task<WebResponse> Dispatch(WebBody body)
+    public async Task<WebResponse> Dispatch(WebRequest request)
     {
         try
         {
-            Log.Debug("Resolving function {FunctionName} for request {RequestId}", body.FunctionName, body.RequestId);
-            var function = _registry.Resolve(body.FunctionName, _provider);
+            Log.Debug("Resolving function {FunctionName} for request {RequestId}", request.FunctionName, request.RequestId);
+            var function = _registry.Resolve(request.FunctionName, _provider);
 
-            var response = await function.Execute(body.Body, _provider);
+            var response = await function.Execute(request.Body, _provider);
 
-            response.RequestId = body.RequestId;
-            Log.Information("Completed request {RequestId} for {FunctionName}", body.RequestId, body.FunctionName);
+            response.RequestId = request.RequestId;
+            Log.Information("Completed request {RequestId} for {FunctionName}", request.RequestId, request.FunctionName);
 
             return response;
         }
         catch (Exception e)
         {
-            var message = $"Failed to dispatch request {body.RequestId} for {body.FunctionName}";
+            var message = $"Failed to dispatch request {request.RequestId} for {request.FunctionName}";
             Log.Error(e, message);
-            return WebResponse.Error(body.RequestId, ErrorCode.FunctionNotFound, message);
+            return WebResponse.Error(request.RequestId, ErrorCode.FunctionNotFound, message);
         }
     }
 }

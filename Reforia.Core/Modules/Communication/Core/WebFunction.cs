@@ -62,6 +62,11 @@ public abstract class WebFunction<TResponse> : IWebFunction
             var result = await Handle(provider);
             return WebResponse.Ok("", result);
         }
+        catch (CommunicationException e)
+        {
+            Log.Error(e, "Error executing {FunctionName}", Name);
+            return WebResponse.Error("", e.ErrorCode, e.Message);
+        }
         catch (Exception e)
         {
             Log.Error(e, "Error executing {FunctionName}", Name);

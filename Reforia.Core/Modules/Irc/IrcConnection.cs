@@ -33,16 +33,42 @@ public class IrcConnection : IAsyncDisposable
         Id = id;
     }
 
-    public Task StartAsync(string host, int port, string nick, string password = "")
+    public async Task StartAsync(string host, int port, string nick, string password = "")
     {
         _host = host;
         _port = port;
         _nick = nick;
         _password = password;
 
+        var loginTcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        EventHandler<IrcMessageEventArgs> authHandler = null!;
+        authHandler = (_, e) =>
+        {
+            if (e.RawMessage.Contains(" 001 ")) 
+                loginTcs.TrySetResult(true);
+            else if (e.RawMessage.Contains(" 464 ")) 
+                loginTcs.TrySetException(new UnauthorizedAccessException("Invalid Credentials"));
+
+            if (loginTcs.Task.IsCompleted)
+                MessageReceived -= authHandler;
+        };
+
+        MessageReceived += authHandler;
+
         _ = Task.Run(ConnectionLoopAsync);
 
-        return Task.CompletedTask;
+        try
+        {
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+            await using (cts.Token.Register(() => loginTcs.TrySetException(new TimeoutException("IRC Login timeout"))))
+                await loginTcs.Task;
+        }
+        catch
+        {
+            MessageReceived -= authHandler;
+            throw;
+        }
     }
 
     public async Task<bool> JoinChannelAsync(string channel)

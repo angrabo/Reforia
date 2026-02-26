@@ -17,8 +17,8 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <Label Content="Wklej klasę C#:" FontWeight="Bold" Grid.Column="0"/>
-        <Label Content="Wygenerowany JSON:" FontWeight="Bold" Grid.Column="1"/>
+        <Label Content="C# class:" FontWeight="Bold" Grid.Column="0"/>
+        <Label Content="JSON:" FontWeight="Bold" Grid.Column="1"/>
 
         <TextBox x:Name="InputCSharp" Grid.Row="1" Grid.Column="0" 
                  AcceptsReturn="True" VerticalScrollBarVisibility="Auto" 
