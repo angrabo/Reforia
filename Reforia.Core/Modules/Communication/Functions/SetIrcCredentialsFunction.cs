@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
+using Reforia.Core.Common.Config.Contracts;
 using Reforia.Core.Common.Config.Interfaces;
-using Reforia.Core.Modules.Communication.Contracts;
 using Reforia.Core.Modules.Communication.Core;
 using Reforia.Core.Modules.Communication.Functions.Body;
 using Reforia.Core.Modules.Communication.Functions.Response;

@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
+using Reforia.Core.Common.Config.Contracts;
 using Reforia.Core.Common.Config.Interfaces;
-using Reforia.Core.Modules.Communication.Contracts;
 using Reforia.Core.Modules.Communication.Core;
 using Reforia.Core.Modules.Communication.Functions.Response;
 
@@ -16,11 +16,13 @@ public class GetSettingsFunction : WebFunction<GetSettingsFunctionResponse>
         
         var apiToken = await config.Get(EConfigOptions.ApiToken);
         var shouldHighlightMessages = await config.Get(EConfigOptions.UserHighlight) == "True";
+        var language = await config.Get(EConfigOptions.Language) ?? "en";
         
         return new GetSettingsFunctionResponse()
         {
             ApiToken = apiToken ?? "",
-            IsUserHighlighted = shouldHighlightMessages
+            IsUserHighlighted = shouldHighlightMessages,
+            Language = language
         };
     }
 }
