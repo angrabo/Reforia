@@ -6,10 +6,10 @@ namespace Reforia.Core.Common.Database.Repositories;
 
 public class ARepository<T> : IRepository<T> where T : class
 {
-    protected readonly DbContext _dbContext;
+    private readonly DbContext _dbContext;
     protected readonly DbSet<T>  _dbSet;
 
-    public ARepository(DbContext dbContext)
+    protected ARepository(DbContext dbContext)
     {
         _dbContext = dbContext;
         _dbSet = _dbContext.Set<T>();
