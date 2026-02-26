@@ -28,6 +28,9 @@ public partial class JsonConverter : Window
                 string type = match.Groups[1].Value;
                 string name = match.Groups[2].Value;
 
+                if (type == "class")
+                    continue;
+
                 resultModel.Add(name, GetDefaultValue(type.ToLower()));
             }
 

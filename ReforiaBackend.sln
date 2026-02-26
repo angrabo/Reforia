@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reforia.Backend", "Reforia.Backend\Reforia.Backend.csproj", "{8622BB61-AC29-4924-B250-377C2342A314}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reforia.DeviceApp", "Reforia.DeviceApp\Reforia.DeviceApp.csproj", "{8622BB61-AC29-4924-B250-377C2342A314}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reforia.RpcTestTool", "Reforia.RpcTestTool\Reforia.RpcTestTool.csproj", "{A32B306E-2ACB-435E-BFF3-910F5766E6E1}"
 EndProject

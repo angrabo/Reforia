@@ -27,7 +27,7 @@ public class Program
 
         try
         {
-            Log.Information("Starting Reforia backend");
+            Log.Information("Starting Device App");
 
             var builder = WebApplication.CreateBuilder(args);
             builder.Host.UseSerilog();
@@ -63,9 +63,9 @@ public class Program
 
             var app = builder.Build();
 
-            app.Lifetime.ApplicationStarted.Register(() => Log.Information("Reforia backend started"));
-            app.Lifetime.ApplicationStopping.Register(() => Log.Information("Reforia backend stopping"));
-            app.Lifetime.ApplicationStopped.Register(() => Log.Information("Reforia backend stopped"));
+            app.Lifetime.ApplicationStarted.Register(() => Log.Information("Device App started"));
+            app.Lifetime.ApplicationStopping.Register(() => Log.Information("Device App stopping"));
+            app.Lifetime.ApplicationStopped.Register(() => Log.Information("Device App stopped"));
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())

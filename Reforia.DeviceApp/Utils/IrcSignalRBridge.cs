@@ -25,6 +25,10 @@ public class IrcSignalRBridge : IIrcConnectionObserver
     {
         try
         {
+            // TODD: filter and final format
+            if (e.RawMessage.Contains("QUIT") || e.RawMessage.Contains("JOIN"))
+                return;
+            
             await _hub.Clients
                 .Group(e.ConnectionId)
                 .SendAsync("ircMessage", e.RawMessage);
