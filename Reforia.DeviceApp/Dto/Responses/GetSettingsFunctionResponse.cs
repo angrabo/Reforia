@@ -1,6 +1,6 @@
-namespace Reforia.Core.Modules.Communication.Functions.Body;
+namespace ReforiaBackend.Dto.Responses;
 
-public class ChangeSettingsFunctionBody
+public class GetSettingsFunctionResponse
 {
     public string ApiToken { get; set; } = string.Empty;
     public bool IsUserHighlighted { get; set; }

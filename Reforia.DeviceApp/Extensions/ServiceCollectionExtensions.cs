@@ -11,6 +11,9 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IIrcConnectionObserver, IrcSignalRBridge>();
         services.AddHttpClient();
         services.AddRequiredServices(options);        
-        
+        services.AddControllers(mvcOptions =>
+        {
+            mvcOptions.Filters.Add<ApiResponseFilter>();
+        });
     }
 }

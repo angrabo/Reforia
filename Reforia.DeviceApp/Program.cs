@@ -4,6 +4,7 @@ using Reforia.Core.Common.Database;
 using Reforia.Core.Utils;
 using ReforiaBackend.Extensions;
 using ReforiaBackend.Hubs;
+using ReforiaBackend.Utils;
 using Serilog;
 using Serilog.Events;
 
@@ -36,9 +37,7 @@ public class Program
             builder.Services.AddSignalR(options =>
             {
                 options.EnableDetailedErrors = true;
-            });
-
-            builder.Services.AddSignalR().AddJsonProtocol(options => {
+            }).AddJsonProtocol(options => {
                 options.PayloadSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
             });
             
@@ -77,7 +76,6 @@ public class Program
             #endif
 
             builder.Services.AddOpenApi();
-
             var app = builder.Build();
             
             app.Lifetime.ApplicationStarted.Register(() => Log.Information("Device App started"));
@@ -96,6 +94,7 @@ public class Program
 
             app.UseSerilogRequestLogging();
             app.UseHttpsRedirection();
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
 
             #if DEBUG
             app.UseCors("dev");
@@ -104,7 +103,8 @@ public class Program
             #if !DEBUG
             app.UseCors("prod");
             #endif
-            
+
+            app.MapControllers();
             app.UseAuthorization();
 
             app.MapHub<AppHub>("/hub");
