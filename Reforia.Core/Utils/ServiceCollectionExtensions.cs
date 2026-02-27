@@ -8,6 +8,7 @@ using Reforia.Core.Common.Database.Interfaces;
 using Reforia.Core.Modules.Communication.Core;
 using Reforia.Core.Modules.Communication.Interfaces;
 using Reforia.Core.Modules.Irc;
+using Reforia.Core.Modules.Tournament.Services;
 
 namespace Reforia.Core.Utils;
 
@@ -19,6 +20,7 @@ public static class ServiceCollectionExtensions
         services.AddConfigServices();
         services.AddIrcModule();
         services.AddCommunicationModule();
+        services.AddTournamentModule();
     }
 
     public static void AddConfigServices(this IServiceCollection services)
@@ -29,6 +31,11 @@ public static class ServiceCollectionExtensions
     public static void AddIrcModule(this IServiceCollection services)
     {
         services.AddSingleton<IrcConnectionManager>();
+    }
+
+    public static void AddTournamentModule(this IServiceCollection services)
+    {
+        services.AddSingleton<LobbyService>();
     }
 
     public static void AddCommunicationModule(this IServiceCollection services)

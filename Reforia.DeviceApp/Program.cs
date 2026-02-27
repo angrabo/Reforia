@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Reforia.Core.Common.Database;
 using Reforia.Core.Utils;
@@ -37,6 +38,11 @@ public class Program
                 options.EnableDetailedErrors = true;
             });
 
+            builder.Services.AddSignalR().AddJsonProtocol(options => {
+                options.PayloadSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            });
+            
+            
             builder.Services.AddLogging();
             builder.Services.AddReforiaBackend(new ServicesOptionsModel()
             {

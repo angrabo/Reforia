@@ -16,7 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Modules\Test\" />
+      <Folder Include="Modules\Tournament\Interfaces\" />
     </ItemGroup>
 
 </Project>

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.SignalR;
 using Reforia.Core.Modules.Irc;
 using Reforia.Core.Modules.Irc.Dto;
 using Reforia.Core.Modules.Irc.Interfaces;
+using Reforia.Core.Modules.Tournament.Services;
 using ReforiaBackend.Hubs;
 using Serilog;
 
@@ -10,15 +11,16 @@ namespace ReforiaBackend.Utils;
 public class IrcSignalRBridge : IIrcConnectionObserver
 {
     private readonly IHubContext<AppHub> _hub;
+    private readonly LobbyService _lobbyService;
 
-    public IrcSignalRBridge(IHubContext<AppHub> hub)
+    public IrcSignalRBridge(IHubContext<AppHub> hub, LobbyService lobbyService)
     {
         _hub = hub;
+        _lobbyService = lobbyService;
     }
 
     public Task AttachAsync(IrcConnection connection, CancellationToken ct = default)
     {
-        Log.Information("Attaching IRC connection {ConnectionId} to SignalR bridge", connection.Id);
         connection.MessageReceived += OnMessage;
         return Task.CompletedTask;
     }
@@ -27,33 +29,35 @@ public class IrcSignalRBridge : IIrcConnectionObserver
     {
         try
         {
-            // TODD: filter and final format
-            if (e.RawMessage.Contains("QUIT") || e.RawMessage.Contains("JOIN"))
-                return;
+            if (!e.RawMessage.Contains("PRIVMSG")) return;
             
-            if (e.RawMessage.Contains("PRIVMSG"))
-            {
-                var parts = e.RawMessage.Split(' ', 4);
-                var source = parts[0].TrimStart(':');
-                var target = parts[2];
-                var message = parts[3].TrimStart(':');
+            var parts = e.RawMessage.Split(' ', 4);
+            var sourceFull = parts[0].TrimStart(':');
+            var senderNick = sourceFull.Split('!')[0];
+            var target = parts[2];
+            var message = parts[3].TrimStart(':');
+            
+            var chatId = target.StartsWith("#") ? target : senderNick;
 
-                var model = new IrcMessageDto()
-                {
-                    ConnectionId = e.ConnectionId,
-                    ChatId = target.Contains('#') ? target : source.Split('!')[0],
-                    Sender = source.Split('!')[0],
-                    Message = message,
-                    Timestamp = DateTime.UtcNow
-                };
-                await _hub.Clients
-                    .Group(e.ConnectionId)
-                    .SendAsync("ircMessage", model);
+            await _hub.Clients.Group(e.ConnectionId).SendAsync("ircMessage", new IrcMessageDto
+            {
+                ConnectionId = e.ConnectionId,
+                ChatId = chatId,
+                Sender = senderNick,
+                Message = message,
+                Timestamp = DateTime.UtcNow
+            });
+
+            if (senderNick.Equals("BanchoBot", StringComparison.OrdinalIgnoreCase))
+            {
+                var updatedLobby = await _lobbyService.ProcessMessage(chatId, message);
+                if (updatedLobby != null) 
+                    await _hub.Clients.Group(e.ConnectionId).SendAsync("LobbyStateUpdated", updatedLobby);
             }
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "Failed to forward IRC message from {ConnectionId}", e.ConnectionId);
+            Log.Error(ex, "Failed to bridge IRC message");
         }
     }
 }
