@@ -20,7 +20,7 @@ public class ConfigService : IConfigService
         }
     }
 
-    public async Task<string?> Get(EConfigOptions enumKey)
+    public async Task<string> Get(EConfigOptions enumKey, string defaultValue = "")
     {
         var key = enumKey.ToString();
         if (_cache.TryGetValue(key, out var value))
@@ -33,7 +33,7 @@ public class ConfigService : IConfigService
             return item.Value;
         }
 
-        return null;
+        return defaultValue;
     }
 
     public async Task Set(EConfigOptions enumKey, string value)
