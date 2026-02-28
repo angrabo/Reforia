@@ -14,7 +14,7 @@ public class AppController : ControllerBase
         _logger = logger;
     }
 
-    [HttpPost]
+    [HttpPost("log")]
     public IActionResult SaveLog([FromBody] SaveLogRequest request)
     {
         if (!Enum.TryParse<LogLevel>(request.Level, true, out var logLevel))
@@ -23,7 +23,7 @@ public class AppController : ControllerBase
             return Ok();
         }
 
-        _logger.Log(logLevel, request.Message);
+        _logger.Log(logLevel, $"[PANEL] {request.Message}");
 
         return Ok();
     }
