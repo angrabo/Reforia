@@ -48,7 +48,7 @@ public class TourneyClientController : ControllerBase
         
         var updates = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            { "Acronym", request.Acronym },
+            { "acronym", request.Acronym },
             { "TeamSize", request.TeamSize.ToString() }
         };
 
