@@ -1,0 +1,81 @@
+﻿<!doctype html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title></title>
+    <style>
+        body {
+            margin: 0;
+            display: grid;
+            place-items: center;
+            height: 100vh;
+            background-color: #121212;
+            color: #e6e6e6;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        .container {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .brand {
+            color: #6aa6ff;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 30px;
+        }
+
+        .title {
+            font-weight: 500;
+            font-size: 16px;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+
+
+        .progress-container {
+            width: 280px;
+            height: 4px;
+            background: #1e1e1e;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 0 auto;
+            border: 1px solid #2a2a2a;
+        }
+
+        .progress-bar {
+            width: 35%;
+            height: 100%;
+            background: #6aa6ff;
+            box-shadow: 0 0 15px rgba(106, 166, 255, 0.4);
+            border-radius: 10px;
+            animation: slide 1.8s infinite ease-in-out;
+        }
+
+        @keyframes slide {
+            0% {
+                transform: translateX(-100%);
+            }
+            50% {
+                transform: translateX(150%);
+            }
+            100% {
+                transform: translateX(300%);
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="brand">Reforia</div>
+    <div class="title">Starting App...</div>
+
+    <div class="progress-container">
+        <div class="progress-bar"></div>
+    </div>
+</div>
+</body>
+</html>
