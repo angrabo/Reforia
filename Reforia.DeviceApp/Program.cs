@@ -5,6 +5,7 @@ using Reforia.Core.Utils;
 using ReforiaBackend.Extensions;
 using ReforiaBackend.Hubs;
 using ReforiaBackend.Utils;
+using ReforiaBackend.Utils.Static;
 using Serilog;
 using Serilog.Events;
 
@@ -14,106 +15,31 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Reforia", "reforia.log"); // TODO: move log path to configuration.
-        var databasePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Reforia", "reforia.db");
-        
-        Log.Logger = new LoggerConfiguration()
-            .MinimumLevel.Debug()
-            .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-            .MinimumLevel.Override("Microsoft.Hosting.Lifetime", LogEventLevel.Information)
-            .Enrich.FromLogContext()
-            .WriteTo.Console()
-            .WriteTo.File(logPath, rollingInterval: RollingInterval.Day)
-            .CreateLogger();
+        ConfigureBootstrapper();
 
         try
         {
-            Log.Information("Starting Device App");
-
+            Logger.Info("Starting Device App");
             var builder = WebApplication.CreateBuilder(args);
-            builder.Host.UseSerilog();
 
-            builder.Services.AddAuthorization();
-            builder.Services.AddSignalR(options =>
-            {
-                options.EnableDetailedErrors = true;
-            }).AddJsonProtocol(options => {
-                options.PayloadSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-            });
-            
-            
-            builder.Services.AddLogging();
-            builder.Services.AddReforiaBackend(new ServicesOptionsModel()
-            {
-                DatabseConnectionString = $"Data Source={databasePath}"
-            });
-            builder.WebHost.UseUrls("http://localhost:5727");
-            
-            #if DEBUG
-            builder.Services.AddCors(options =>
-            {
-                options.AddPolicy("dev", policy =>
-                {
-                    policy.WithOrigins("http://localhost:1420", "https://localhost:1420")
-                        .AllowAnyHeader()
-                        .AllowAnyMethod()
-                        .AllowCredentials();
-                });
-            });
-            #endif
-            
-            #if !DEBUG
-            builder.Services.AddCors(options =>
-            {
-                options.AddPolicy("prod", policy =>
-                {
-                    policy.WithOrigins("http://tauri.localhost")
-                        .AllowAnyHeader()
-                        .AllowAnyMethod()
-                        .AllowCredentials();
-                });
-            });
-            #endif
+            ConfigureHost(builder);
+            ConfigureServices(builder);
 
-            builder.Services.AddOpenApi();
             var app = builder.Build();
-            
-            app.Lifetime.ApplicationStarted.Register(() => Log.Information("Device App started"));
-            app.Lifetime.ApplicationStopping.Register(() => Log.Information("Device App stopping"));
-            app.Lifetime.ApplicationStopped.Register(() => Log.Information("Device App stopped"));
 
+            ConfigureMiddleware(app);
+            InitializeLifecycleLogs(app);
             
-            if (!File.Exists(databasePath))
-                InitializeDatabase(app);
-            
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
+            if (!File.Exists(Paths.DatabasePath))
             {
-                app.MapOpenApi();
+                InitializeDatabase(app);
             }
-
-            app.UseSerilogRequestLogging();
-            app.UseHttpsRedirection();
-            app.UseMiddleware<ExceptionHandlingMiddleware>();
-
-            #if DEBUG
-            app.UseCors("dev");
-            #endif
-            
-            #if !DEBUG
-            app.UseCors("prod");
-            #endif
-
-            app.MapControllers();
-            app.UseAuthorization();
-
-            app.MapHub<AppHub>("/hub");
 
             app.Run();
         }
         catch (Exception ex)
         {
-            Log.Fatal(ex, "Reforia backend terminated unexpectedly");
+            Logger.Fatal(ex, "Reforia backend terminated unexpectedly");
         }
         finally
         {
@@ -121,18 +47,96 @@ public class Program
         }
     }
 
+    private static void ConfigureBootstrapper()
+    {
+        var outputTemplate = "[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] {SourceContext}{NewLine}{Message:lj}{NewLine}{Exception}";
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Information()
+            .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+            .MinimumLevel.Override("System", LogEventLevel.Warning)
+            .Enrich.FromLogContext()
+            .WriteTo.Console(outputTemplate: outputTemplate)
+            .WriteTo.File(Paths.LogFilePath, rollingInterval: RollingInterval.Day, retainedFileCountLimit: 7, outputTemplate: outputTemplate)
+            .CreateLogger();
+    }
+
+    private static void ConfigureHost(WebApplicationBuilder builder)
+    {
+        builder.Host.UseSerilog();
+        builder.WebHost.UseUrls("http://localhost:5727");
+    }
+
+    private static void ConfigureServices(WebApplicationBuilder builder)
+    {
+     
+        builder.Services.AddSignalR(options => { options.EnableDetailedErrors = true; })
+            .AddJsonProtocol(options => {
+                options.PayloadSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            });
+
+        builder.Services.AddAuthorization();
+        builder.Services.AddOpenApi();
+        builder.Services.AddReforiaBackend(new ServicesOptionsModel
+        {
+            DatabseConnectionString = $"Data Source={Paths.DatabasePath}"
+        });
+
+        // CORS - zintegrowany
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("DefaultPolicy", policy =>
+            {
+                var origins = builder.Environment.IsDevelopment() 
+                    ? new[] { "http://localhost:1420", "https://localhost:1420" }
+                    : new[] { "http://tauri.localhost" };
+
+                policy.WithOrigins(origins)
+                      .AllowAnyHeader()
+                      .AllowAnyMethod()
+                      .AllowCredentials();
+            });
+        });
+    }
+
+    private static void ConfigureMiddleware(WebApplication app)
+    {
+        if (app.Environment.IsDevelopment())
+        {
+            app.MapOpenApi();
+        }
+
+        app.UseSerilogRequestLogging();
+        app.UseMiddleware<ExceptionHandlingMiddleware>();
+        Logger.Init(app.Services.GetRequiredService<ILoggerFactory>());
+        
+        app.UseHttpsRedirection(); 
+        
+        app.UseCors("DefaultPolicy");
+        
+        app.UseAuthorization();
+
+        app.MapControllers();
+        app.MapHub<AppHub>("/hub");
+    }
+
+    private static void InitializeLifecycleLogs(WebApplication app)
+    {
+        app.Lifetime.ApplicationStarted.Register(() => Log.Information("Device App started"));
+        app.Lifetime.ApplicationStopped.Register(() => Log.Information("Device App stopped"));
+    }
+
     private static void InitializeDatabase(WebApplication app)
     {
         using var scope = app.Services.CreateScope();
-        var services = scope.ServiceProvider;
         try
         {
-            var context = services.GetRequiredService<AppDbContext>();
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             context.Database.Migrate();
+            Logger.Info("Database migration completed successfully.");
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "An error occurred while migrating the database.");
+            Logger.Error(ex, "An error occurred while migrating the database.");
         }
     }
 }

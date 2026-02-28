@@ -1,38 +1,38 @@
 ﻿using Reforia.Core.Common;
 using Reforia.Core.Modules.Communication.Contracts;
-using Serilog;
+using Reforia.Core.Utils;
 
 namespace Reforia.Core.Modules.Communication.Core;
 
 public class WebDispatcher
 {
     private readonly WebFunctionRegistry _registry;
-    private readonly IServiceProvider _provider;
+    private readonly IServiceProvider    _provider;
 
     public WebDispatcher(WebFunctionRegistry registry, IServiceProvider provider)
     {
         _registry = registry;
         _provider = provider;
     }
-    
+
     public async Task<WebResponse> Dispatch(WebRequest request)
     {
         try
         {
-            Log.Debug("Resolving function {FunctionName} for request {RequestId}", request.FunctionName, request.RequestId);
+            Logger.Debug($"Resolving function {request.FunctionName} for request {request.RequestId}");
             var function = _registry.Resolve(request.FunctionName, _provider);
 
             var response = await function.Execute(request.Body, _provider);
 
             response.RequestId = request.RequestId;
-            Log.Information("Completed request {RequestId} for {FunctionName}", request.RequestId, request.FunctionName);
+            Logger.Info($"Completed request {request.RequestId} for {request.FunctionName}");
 
             return response;
         }
         catch (Exception e)
         {
             var message = $"Failed to dispatch request {request.RequestId} for {request.FunctionName}";
-            Log.Error(e, message);
+            Logger.Error(e, message);
             return WebResponse.Error(request.RequestId, EErrorCode.FunctionNotFound, message);
         }
     }

@@ -1,3 +1,4 @@
+using Reforia.Core.Common;
 using ReforiaBackend.Dto;
 
 namespace ReforiaBackend.Utils;
@@ -31,7 +32,8 @@ public class ExceptionHandlingMiddleware
             await context.Response.WriteAsJsonAsync(new ApiResponse<object>
             {
                 StatusCode = 500,
-                Error = "Internal server error"
+                Error = "Internal server error",
+                ErrorCode = EErrorCode.Unknown
             });
         }
     }

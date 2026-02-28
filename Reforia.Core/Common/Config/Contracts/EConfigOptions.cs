@@ -11,5 +11,7 @@ public enum EConfigOptions
     AlertOnKeyword,
     HighlightOnKeyword,
     KeywordList,
-    ShowBeatmapBanner
+    ShowBeatmapBanner,
+    DefaultStartValue,
+    DefaultTimerValue
 }

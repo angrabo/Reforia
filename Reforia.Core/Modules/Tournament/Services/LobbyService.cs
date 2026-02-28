@@ -94,6 +94,9 @@ public class LobbyService
 
 private LobbyStateDto ProcessGameStatus(LobbyStateDto lobby, string text)
 {
+    if (lobby.Players.Count < 1)
+        return lobby;
+    
     return text switch
     {
         "All players are ready" => lobby with { Players = lobby.Players.Select(p => p with { IsReady = true }).ToList() },

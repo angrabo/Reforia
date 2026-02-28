@@ -1,5 +1,5 @@
 ﻿using System.Net.Sockets;
-using Serilog;
+using Reforia.Core.Utils;
 
 namespace Reforia.Core.Modules.Irc;
 
@@ -81,7 +81,7 @@ public class IrcConnection : IAsyncDisposable
         }
         catch (Exception e)
         {
-            Log.Error(e, "Could not join channel {Channel}", channel);
+            Logger.Error(e, $"Could not join channel {channel}");
             return false;
         }
     }
@@ -96,7 +96,7 @@ public class IrcConnection : IAsyncDisposable
         }
         catch (Exception e)
         {
-            Log.Error(e, "Could not leave channel {Channel}", channel);
+            Logger.Error(e, $"Could not leave channel {channel}");
             return false;
         }
     }
@@ -110,7 +110,7 @@ public class IrcConnection : IAsyncDisposable
         }
         catch (Exception e)
         {
-            Log.Error(e, "Could not send channel message on #{Channel}", channel);
+            Logger.Error(e, $"Could not send channel message on #{channel}");
             return false;
         }
     }
@@ -124,7 +124,7 @@ public class IrcConnection : IAsyncDisposable
         }
         catch ( Exception e)
         {
-            Log.Error(e, "Could not send private message to {Username}", username);
+            Logger.Error(e, $"Could not send private message to {username}");
             return false;
         }
     }
@@ -138,7 +138,7 @@ public class IrcConnection : IAsyncDisposable
         {
             try
             {
-                Log.Information("Connecting IRC {Id}", Id);
+                Logger.Info($"Connecting IRC {Id}");
 
                 await ConnectInternalAsync();
 
@@ -148,13 +148,13 @@ public class IrcConnection : IAsyncDisposable
             }
             catch (Exception ex)
             {
-                Log.Warning(ex, "IRC disconnected {Id}", Id);
+                Logger.Warning(ex, $"IRC disconnected {Id}" );
             }
 
             if (_cts.IsCancellationRequested)
                 break;
 
-            Log.Information("Reconnect in {Delay}ms", delay);
+            Logger.Info($"Reconnect in {delay}ms");
 
             try
             {
@@ -198,7 +198,7 @@ public class IrcConnection : IAsyncDisposable
 
         _lastMessageReceived = DateTime.UtcNow;
         
-        Log.Information("Connected to IRC {Id}", Id);
+        Logger.Info($"Connected to IRC {Id}");
     }
 
     private async Task RejoinChannels()
@@ -255,7 +255,7 @@ public class IrcConnection : IAsyncDisposable
 
             if (DateTime.UtcNow - _lastMessageReceived > WatchdogTimeout)
             {
-                Log.Warning("Watchdog timeout for {Id}", Id);
+                Logger.Warning($"Watchdog timeout for {Id}");
                 throw new Exception("Watchdog timeout");
             }
         }
@@ -278,7 +278,7 @@ public class IrcConnection : IAsyncDisposable
     
     public async ValueTask DisposeAsync()
     {
-        Log.Information("Disposing IRC connection {Id}", Id);
+        Logger.Info($"Disposing IRC connection {Id}");
 
         await _cts.CancelAsync();
 

@@ -1,6 +1,6 @@
-namespace Reforia.Core.Modules.Communication.Functions.Body;
+namespace ReforiaBackend.Dto.Requests;
 
-public class SetIrcCredentialsFunctionBody
+public class SetIrcCredentialsRequest
 {
     public required string Nick { get; set; }
     public string Password { get; set; } = string.Empty;

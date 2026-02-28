@@ -7,7 +7,7 @@ using Reforia.Core.Modules.Communication.Exceptions;
 using Reforia.Core.Modules.Communication.Functions.Response;
 using Reforia.Core.Modules.Irc;
 using Reforia.Core.Modules.Irc.Interfaces;
-using Serilog;
+using Reforia.Core.Utils;
 
 namespace Reforia.Core.Modules.Communication.Functions;
 
@@ -51,7 +51,7 @@ public class CreateIrcConnectionFunction : WebFunction<CreateIrcConnectionFuncti
         }
         catch (Exception e)
         {
-            Log.Warning(e, "Failed to create IRC connection with id {ConnectionId}", connectionId);
+            Logger.Warning(e, $"Failed to create IRC connection with id {connectionId}" );
             throw new CommunicationException(EErrorCode.CannotConnectToIrc, "Invalid IRC credentials or network error");
         }
 

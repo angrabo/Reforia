@@ -1,5 +1,5 @@
 using System.Collections.Concurrent;
-using Serilog;
+using Reforia.Core.Utils;
 
 namespace Reforia.Core.Modules.Irc;
 
@@ -9,26 +9,26 @@ public class IrcConnectionManager
 
     public async Task<IrcConnection> CreateAsync(string id, string host, int port, string nick, string password = "")
     {
-        Log.Information("Creating IRC connection {ConnectionId} to {Host}:{Port} as {Nick}", id, host, port, nick);
+        Logger.Info($"Creating IRC connection {id} to {host}:{port} as {nick}");
 
         var conn = new IrcConnection(id);
 
         if (!_connections.TryAdd(id, conn))
         {
-            Log.Warning("IRC connection with id {ConnectionId} already exists", id);
+            Logger.Warning($"IRC connection with id {id} already exists");
             throw new InvalidOperationException($"IRC connection with id '{id}' already exists.");
         }
 
         try
         {
             await conn.StartAsync(host, port, nick, password);
-            Log.Information("IRC connection {ConnectionId} connected", id);
+            Logger.Info($"IRC connection {id} connected");
         }
         catch (Exception ex)
         {
             await conn.DisposeAsync();
             _connections.TryRemove(id, out _);
-            Log.Error(ex, "IRC connection {ConnectionId} failed to connect", id);
+            Logger.Error(ex, $"IRC connection {id} failed to connect");
             throw;
         }
 
@@ -48,7 +48,7 @@ public class IrcConnectionManager
         }
 
         connection = null!;
-        Log.Debug("IRC connection for user {User} not found", user);
+        Logger.Debug($"IRC connection for user {user} not found");
         return false;
     }
 
@@ -57,7 +57,7 @@ public class IrcConnectionManager
         var found = _connections.TryGetValue(id, out connection!);
         
         if (!found)
-            Log.Debug("IRC connection {ConnectionId} not found", id);
+            Logger.Debug($"IRC connection {id} not found");
         
         return found;
     }
@@ -73,9 +73,9 @@ public class IrcConnectionManager
         var removed = _connections.TryRemove(id, out _);
         
         if (removed)
-            Log.Information("IRC connection {ConnectionId} removed from manager", id);
+            Logger.Info($"IRC connection {id} removed from manager");
         else
-            Log.Debug("Attempted to remove IRC connection {ConnectionId} but it was not found", id);
+            Logger.Debug($"Attempted to remove IRC connection {id} but it was not found");
         
         return removed;
     }
@@ -83,6 +83,6 @@ public class IrcConnectionManager
     private void OnConnectionDisposed(object? sender, string id)
     {
         if (_connections.TryRemove(id, out _))
-            Log.Information("IRC connection {ConnectionId} removed from manager", id);
+            Logger.Info($"IRC connection {id} removed from manager");
     }
 }

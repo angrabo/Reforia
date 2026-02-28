@@ -5,7 +5,6 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <RootNamespace>ReforiaBackend</RootNamespace>
-        <OutputType>WinExe</OutputType>
     </PropertyGroup>
 
     <ItemGroup>
@@ -21,6 +20,10 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Reforia.Core\Reforia.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Dto\Responses\App\" />
     </ItemGroup>
 
 </Project>

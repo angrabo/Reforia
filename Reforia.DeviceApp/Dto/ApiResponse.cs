@@ -1,3 +1,5 @@
+using Reforia.Core.Common;
+
 namespace ReforiaBackend.Dto;
 
 public class ApiResponse<T>
@@ -5,4 +7,5 @@ public class ApiResponse<T>
     public int StatusCode { get; set; }
     public T? Data { get; set; }
     public string? Error { get; set; }
+    public EErrorCode? ErrorCode { get; set; }
 }

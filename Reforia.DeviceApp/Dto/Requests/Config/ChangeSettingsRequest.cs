@@ -1,6 +1,6 @@
-namespace ReforiaBackend.Dto.Responses;
+namespace ReforiaBackend.Dto.Requests;
 
-public class GetSettingsFunctionResponse
+public class ChangeSettingsRequest
 {
     public string ApiToken { get; set; } = string.Empty;
     public bool IsUserHighlighted { get; set; }
@@ -15,4 +15,8 @@ public class GetSettingsFunctionResponse
     public List<string> KeywordList { get; set; } = new List<string>();
     
     public bool ShowBeatmapBanner { get; set; }
+    
+    public string DefaultStartValue { get; set; } = string.Empty;
+    
+    public string DefaultTimerValue { get; set; } = string.Empty;
 }

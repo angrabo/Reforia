@@ -3,7 +3,7 @@ using Reforia.Core.Common;
 using Reforia.Core.Modules.Communication.Contracts;
 using Reforia.Core.Modules.Communication.Exceptions;
 using Reforia.Core.Modules.Communication.Interfaces;
-using Serilog;
+using Reforia.Core.Utils;
 
 namespace Reforia.Core.Modules.Communication.Core;
 
@@ -37,12 +37,12 @@ public abstract class WebFunction<TBody, TResponse> : IWebFunction
         }
         catch (CommunicationException e)
         {
-            Log.Error(e, "Error executing {FunctionName}", Name);
+            Logger.Error(e, $"Error executing {Name}");
             return WebResponse.Error("", e.EErrorCode, e.Message);
         }
         catch (Exception e)
         {
-            Log.Error(e, "Error executing {FunctionName}", Name);
+            Logger.Error(e, $"Error executing {Name}");
             return WebResponse.Error("", EErrorCode.Unknown, e.Message);
         }
     }
@@ -64,12 +64,12 @@ public abstract class WebFunction<TResponse> : IWebFunction
         }
         catch (CommunicationException e)
         {
-            Log.Error(e, "Error executing {FunctionName}", Name);
+            Logger.Error(e, $"Error executing {Name}");
             return WebResponse.Error("", e.EErrorCode, e.Message);
         }
         catch (Exception e)
         {
-            Log.Error(e, "Error executing {FunctionName}", Name);
+            Logger.Error(e, $"Error executing {Name}");
             return WebResponse.Error("", EErrorCode.ErrorDuringFunctionExecute, e.Message);
         }
     }
