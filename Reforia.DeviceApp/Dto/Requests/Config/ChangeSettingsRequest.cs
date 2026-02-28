@@ -19,4 +19,6 @@ public class ChangeSettingsRequest
     public string DefaultStartValue { get; set; } = string.Empty;
     
     public string DefaultTimerValue { get; set; } = string.Empty;
+    
+    public string OsuTourneyClientPathFolder { get; set; } = string.Empty;
 }

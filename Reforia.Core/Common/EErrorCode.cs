@@ -25,7 +25,7 @@ public enum EErrorCode
 
     #region Tournement (3000-3999)
     
-    Temp = 3000,
+    InvalidTourneyClientPath = 3000,
 
     #endregion
 }

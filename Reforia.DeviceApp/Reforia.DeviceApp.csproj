@@ -25,6 +25,7 @@
 
     <ItemGroup>
       <Folder Include="Dto\Responses\App\" />
+      <Folder Include="Dto\Responses\TourneyClient\" />
     </ItemGroup>
 
 </Project>

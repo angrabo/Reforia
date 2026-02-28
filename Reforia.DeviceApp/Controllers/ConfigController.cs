@@ -32,6 +32,7 @@ public class ConfigController : ControllerBase
         var showBeatmapBanner = await _config.Get(EConfigOptions.ShowBeatmapBanner, "True") == "True";
         var defaultStartValue = await _config.Get(EConfigOptions.DefaultStartValue, "10");
         var defaultTimerValue = await _config.Get(EConfigOptions.DefaultTimerValue, "120");
+        var osuTourneyClientPathFolder = await _config.Get(EConfigOptions.OsuTourneyClientPathFolder, string.Empty);
         
         return new GetSettingsResponse()
         {
@@ -44,7 +45,8 @@ public class ConfigController : ControllerBase
             KeywordList = keywordList.Split(',').Select(k => k.Trim()).Where(k => !string.IsNullOrWhiteSpace(k)).ToList(),
             ShowBeatmapBanner = showBeatmapBanner,
             DefaultStartValue = defaultStartValue,
-            DefaultTimerValue = defaultTimerValue
+            DefaultTimerValue = defaultTimerValue,
+            OsuTourneyClientPathFolder = osuTourneyClientPathFolder
         };
     }
     
@@ -62,7 +64,8 @@ public class ConfigController : ControllerBase
             { EConfigOptions.KeywordList, string.Join(',', request.KeywordList) },
             { EConfigOptions.ShowBeatmapBanner, request.ShowBeatmapBanner.ToString() },
             { EConfigOptions.DefaultStartValue, request.DefaultStartValue },
-            { EConfigOptions.DefaultTimerValue, request.DefaultTimerValue }
+            { EConfigOptions.DefaultTimerValue, request.DefaultTimerValue },
+            { EConfigOptions.OsuTourneyClientPathFolder, request.OsuTourneyClientPathFolder }
         };
         
         foreach (var (option, value) in updates)

@@ -8,16 +8,14 @@ using Reforia.Core.Modules.Tournament.Models;
 
 namespace Reforia.Core.Modules.Tournament.Services;
 
-public class LobbyService
+public partial class LobbyService
 {
     private readonly IServiceScopeFactory _scopeFactory;
 
     private readonly ConcurrentDictionary<string, LobbyStateDto> _lobbies = new();
 
     private static readonly Regex PlayerRegex =
-        new Regex(
-            @"^Slot\s+(?<slot>\d+)\s+(?<ready>Ready|Not Ready)\s+https?:\/\/osu\.ppy\.sh\/u\/\d+\s+(?<user>[^\s\[]+)(?:\s+\[Team\s+(?<team>Blue|Red)\s*\])?",
-            RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        MyRegex();
 
     private static readonly Regex RoomNameRegex =
         new Regex(@"Room name:\s*(?<name>.+?),\s*History:", RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -68,100 +66,129 @@ public class LobbyService
 
         updatedLobby = ProcessPlayerActions(updatedLobby, text);
 
-        
+
         if (updatedLobby != lobby)
         {
             _lobbies[chatId] = updatedLobby;
-            
+
             if (lobby.Status == "closed")
                 _lobbies.TryRemove(chatId, out _);
-            
+
             return updatedLobby;
         }
 
         return null;
     }
-    
+
     private LobbyStateDto GetOrCreateLobby(string chatId)
-{
-    if (!_lobbies.TryGetValue(chatId, out var lobby))
     {
-        lobby = CreateDefaultLobby(chatId, null, null);
-        _lobbies[chatId] = lobby;
-    }
-    return lobby;
-}
+        if (!_lobbies.TryGetValue(chatId, out var lobby))
+        {
+            lobby = CreateDefaultLobby(chatId, null, null);
+            _lobbies[chatId] = lobby;
+        }
 
-private LobbyStateDto ProcessGameStatus(LobbyStateDto lobby, string text)
-{
-    if (lobby.Players.Count < 1)
         return lobby;
-    
-    return text switch
-    {
-        "All players are ready" => lobby with { Players = lobby.Players.Select(p => p with { IsReady = true }).ToList() },
-        "The match has started!" => lobby with { Status = "progress" ,Players = lobby.Players.Select(p => p with { IsReady = false, IsPlaying = true }).ToList() },
-        "Aborted the match" => lobby with { Status = "open", Players = lobby.Players.Select(p => p with { IsReady = false, IsPlaying = false }).ToList() },
-        "The match has finished!" => lobby with { Status = "open", Players = lobby.Players.Select(p => p with { IsPlaying = false }).ToList() },
-        "Closed the match" => lobby with { Status = "closed", Players = [] },
-        _ => lobby
-    };
-}
-
-private LobbyStateDto ProcessSettings(LobbyStateDto lobby, string text)
-{
-    if (RoomNameRegex.Match(text) is { Success: true } roomMatch)
-        return lobby with { DisplayName = ParseBanchoRoomName(roomMatch.Groups["name"].Value.Trim()) };
-
-    if (text.Contains("Team mode:") && TeamWinRegex.Match(text) is { Success: true } twMatch)
-        return ApplySettings(lobby, twMatch.Groups["mode"].Value, twMatch.Groups["win"].Value);
-
-    if (text.StartsWith("Changed match settings to"))
-    {
-        var content = text.Replace("Changed match settings to ", "");
-        var newSettings = ParseChangedSettings(lobby.Settings, content);
-        return ApplySettings(lobby, newSettings.TeamMode, newSettings.WinCondition, newSettings);
     }
 
-    if (text.StartsWith("Active mods:") || text.Contains("Enabled") || text.Contains("Disabled"))
+    private LobbyStateDto ProcessGameStatus(LobbyStateDto lobby, string text)
     {
-        var updatedSettings = HandleModUpdate(lobby.Settings, text);
-        return updatedSettings != lobby.Settings ? lobby with { Settings = updatedSettings } : lobby;
+        if (lobby.Players.Count < 1)
+            return lobby;
+
+        return text switch
+        {
+            "All players are ready" => lobby with
+            {
+                Players = lobby.Players.Select(p => p with { IsReady = true }).ToList()
+            },
+            "The match has started!" => lobby with
+            {
+                Status = "progress",
+                Players = lobby.Players.Select(p => p with { IsReady = false, IsPlaying = true }).ToList()
+            },
+            "Aborted the match" => lobby with
+            {
+                Status = "open",
+                Players = lobby.Players.Select(p => p with { IsReady = false, IsPlaying = false }).ToList()
+            },
+            "The match has finished!" => lobby with
+            {
+                Status = "open", Players = lobby.Players.Select(p => p with { IsPlaying = false }).ToList()
+            },
+            "Closed the match" => lobby with { Status = "closed", Players = [] },
+            _ => lobby
+        };
     }
 
-    return lobby;
-}
-
-private LobbyStateDto ProcessPlayerActions(LobbyStateDto lobby, string text)
-{
-    if (PlayerRegex.Match(text) is { Success: true } p)
-        return UpsertPlayer(lobby, new PlayerDto(int.Parse(p.Groups["slot"].Value), p.Groups["user"].Value, false, p.Groups["ready"].Value == "Ready", NormalizeTeam(p.Groups["team"].Value, lobby.Settings.TeamMode)));
-
-    if (JoinedRegex.Match(text) is { Success: true } j)
-        return UpsertPlayer(lobby, new PlayerDto(int.Parse(j.Groups["slot"].Value), j.Groups["user"].Value, false, false, NormalizeTeam(j.Groups["team"].Value, lobby.Settings.TeamMode)));
-
-    if (LeftRegex.Match(text) is { Success: true } l)
+    private LobbyStateDto ProcessSettings(LobbyStateDto lobby, string text)
     {
-        var username = l.Groups["user"].Value;
-        return lobby with { Players = lobby.Players.Where(p => p.Username != username).ToList() };
+        if (RoomNameRegex.Match(text) is { Success: true } roomMatch)
+            return lobby with { DisplayName = ParseBanchoRoomName(roomMatch.Groups["name"].Value.Trim()) };
+
+        if (text.Contains("Team mode:") && TeamWinRegex.Match(text) is { Success: true } twMatch)
+            return ApplySettings(lobby, twMatch.Groups["mode"].Value, twMatch.Groups["win"].Value);
+
+        if (text.StartsWith("Changed match settings to"))
+        {
+            var content = text.Replace("Changed match settings to ", "");
+            var newSettings = ParseChangedSettings(lobby.Settings, content);
+            return ApplySettings(lobby, newSettings.TeamMode, newSettings.WinCondition, newSettings);
+        }
+
+        if (text.StartsWith("Active mods:") || text.Contains("Enabled") || text.Contains("Disabled"))
+        {
+            var updatedSettings = HandleModUpdate(lobby.Settings, text);
+            return updatedSettings != lobby.Settings ? lobby with { Settings = updatedSettings } : lobby;
+        }
+
+        return lobby;
     }
 
-    if (MovedRegex.Match(text) is { Success: true } m)
+    private LobbyStateDto ProcessPlayerActions(LobbyStateDto lobby, string text)
     {
-        var user = m.Groups["user"].Value;
-        int newSlot = int.Parse(m.Groups["slot"].Value);
-        return lobby with { Players = lobby.Players.Select(p => p.Username == user ? p with { Slot = newSlot } : p).OrderBy(p => p.Slot).ToList() };
-    }
+        if (PlayerRegex.Match(text) is { Success: true } p)
+            return UpsertPlayer(
+                lobby,
+                new PlayerDto(int.Parse(p.Groups["slot"].Value), p.Groups["user"].Value, false,
+                              p.Groups["ready"].Value == "Ready",
+                              NormalizeTeam(p.Groups["team"].Value, lobby.Settings.TeamMode)));
 
-    if (TeamChangeRegex.Match(text) is { Success: true } t)
-    {
-        var user = t.Groups["user"].Value;
-        var team = NormalizeTeam(t.Groups["team"].Value, lobby.Settings.TeamMode);
-        return lobby with { Players = lobby.Players.Select(p => p.Username == user ? p with { Team = team } : p).ToList() };
-    }
+        if (JoinedRegex.Match(text) is { Success: true } j)
+            return UpsertPlayer(
+                lobby,
+                new PlayerDto(int.Parse(j.Groups["slot"].Value), j.Groups["user"].Value, false, false,
+                              NormalizeTeam(j.Groups["team"].Value, lobby.Settings.TeamMode)));
 
-    return lobby;
-}
+        if (LeftRegex.Match(text) is { Success: true } l)
+        {
+            var username = l.Groups["user"].Value;
+            return lobby with { Players = lobby.Players.Where(playerDto => playerDto.Username != username).ToList() };
+        }
+
+        if (MovedRegex.Match(text) is { Success: true } m)
+        {
+            var user = m.Groups["user"].Value;
+            var newSlot = int.Parse(m.Groups["slot"].Value);
+            return lobby with
+            {
+                Players = lobby.Players.Select(playerDto => playerDto.Username == user ? playerDto with { Slot = newSlot } : playerDto)
+                    .OrderBy(playerDto => playerDto.Slot).ToList()
+            };
+        }
+
+        if (TeamChangeRegex.Match(text) is { Success: true } t)
+        {
+            var user = t.Groups["user"].Value;
+            var team = NormalizeTeam(t.Groups["team"].Value, lobby.Settings.TeamMode);
+            return lobby with
+            {
+                Players = lobby.Players.Select(p => p.Username == user ? p with { Team = team } : p).ToList()
+            };
+        }
+
+        return lobby;
+    }
 
     private LobbyStateDto ApplySettings(LobbyStateDto lobby, string mode, string winCond,
                                         LobbySettingsDto? fullSettings = null)
@@ -209,13 +236,15 @@ private LobbyStateDto ProcessPlayerActions(LobbyStateDto lobby, string text)
 
     private LobbySettingsDto HandleModUpdate(LobbySettingsDto s, string text)
     {
-        if (text.StartsWith("Active mods:"))
+        if (text.StartsWith("Active mods:", StringComparison.OrdinalIgnoreCase))
         {
-            var modsPart = text.Replace("Active mods:", "").Trim();
-            bool hasFreemod = modsPart.Contains("Freemod", StringComparison.OrdinalIgnoreCase);
-            var modsList = modsPart.Split(", ").Select(m => m.Trim())
+            var modsPart = text.Replace("Active mods:", "", StringComparison.OrdinalIgnoreCase).Trim();
+            var hasFreemod = modsPart.Contains("Freemod", StringComparison.OrdinalIgnoreCase);
+            var modsList = modsPart.Split(", ")
+                .Select(m => m.Trim())
                 .Where(m => !m.Equals("Freemod", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrEmpty(m))
                 .ToList();
+
             return s with
             {
                 Freemod = hasFreemod ? "true" : "false",
@@ -223,32 +252,53 @@ private LobbyStateDto ProcessPlayerActions(LobbyStateDto lobby, string text)
             };
         }
 
-        var parts = text.Split(", ").Select(p => p.Trim().ToLower());
-        bool modUpdate = false;
+        var parts = text.Split(", ").Select(p => p.Trim()).ToList();
+        var currentMods = s.Mods == "None" ? new List<string>() : s.Mods.Split(", ").ToList();
+        var isEnabling = false;
+
         foreach (var part in parts)
         {
-            if (part.Contains("freemod"))
+            var lowerPart = part.ToLower();
+
+            if (lowerPart.Contains("freemod"))
             {
-                s = s with { Freemod = part.Contains("enabled") ? "true" : "false" };
-                modUpdate = true;
+                s = s with { Freemod = lowerPart.Contains("enabled") ? "true" : "false" };
             }
-            else if (part.Contains("disabled all mods"))
+            else if (lowerPart.Contains("disabled all mods"))
             {
-                s = s with { Mods = "None" };
-                modUpdate = true;
+                currentMods.Clear();
             }
-            else if (part.StartsWith("enabled "))
+            else
             {
-                var modStr = part.Substring(8).Trim();
-                if (!modStr.Equals("freemod", StringComparison.OrdinalIgnoreCase))
+                if (lowerPart.StartsWith("enabled "))
                 {
-                    s = s with { Mods = char.ToUpper(modStr[0]) + modStr.Substring(1) };
-                    modUpdate = true;
+                    isEnabling = true;
+                    var mod = part.Substring(8).Trim();
+                    AddModToList(currentMods, mod);
+                }
+                else if (lowerPart.StartsWith("disabled "))
+                {
+                    isEnabling = false;
+                    var mod = part.Substring(9).Trim();
+                    currentMods.RemoveAll(m => m.Equals(mod, StringComparison.OrdinalIgnoreCase));
+                }
+                else
+                {
+                    if (isEnabling) AddModToList(currentMods, part);
+                    else currentMods.RemoveAll(m => m.Equals(part, StringComparison.OrdinalIgnoreCase));
                 }
             }
         }
-        
-        return s;
+
+        return s with { Mods = currentMods.Count == 0 ? "None" : string.Join(", ", currentMods) };
+    }
+
+    private void AddModToList(List<string> list, string mod)
+    {
+        if (!list.Any(m => m.Equals(mod, StringComparison.OrdinalIgnoreCase)))
+        {
+            list.Add(char.ToUpper(mod[0]) + mod.Substring(1).ToLower());
+        }
     }
 
     private LobbyStateDto UpsertPlayer(LobbyStateDto lobby, PlayerDto player)
@@ -278,7 +328,7 @@ private LobbyStateDto ProcessPlayerActions(LobbyStateDto lobby, string text)
             var apiKey = await config.Get(EConfigOptions.ApiToken);
 
             var url = $"https://osu.ppy.sh/api/get_beatmaps?b={beatmapId}&k={apiKey}";
-            
+
             var response = await httpClient.GetAsync(url);
             if (!response.IsSuccessStatusCode) return null;
 
@@ -297,13 +347,16 @@ private LobbyStateDto ProcessPlayerActions(LobbyStateDto lobby, string text)
     {
         return new LobbyStateDto
         {
-            Id = chatId, 
+            Id = chatId,
             DisplayName = chatId,
             Type = chatId.StartsWith("#mp_") ? "tournament" : (chatId.StartsWith("#") ? "channel" : "user"),
-            TournamentName = tournament ?? "Custom", 
+            TournamentName = tournament ?? "Custom",
             Stage = stage ?? "General",
-            Settings = new LobbySettingsDto(), 
+            Settings = new LobbySettingsDto(),
             Players = new List<PlayerDto>()
         };
     }
+
+    [GeneratedRegex(@"^Slot\s+(?<slot>\d+)\s+(?<ready>Ready|Not Ready)\s+https?:\/\/osu\.ppy\.sh\/u\/\d+\s+(?<user>[^\s\[]+)(?:\s+\[Team\s+(?<team>Blue|Red)\s*\])?", RegexOptions.IgnoreCase | RegexOptions.Compiled, "pl-PL")]
+    private static partial Regex MyRegex();
 }

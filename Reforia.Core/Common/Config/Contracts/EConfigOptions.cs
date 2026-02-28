@@ -13,5 +13,6 @@ public enum EConfigOptions
     KeywordList,
     ShowBeatmapBanner,
     DefaultStartValue,
-    DefaultTimerValue
+    DefaultTimerValue,
+    OsuTourneyClientPathFolder
 }
