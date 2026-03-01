@@ -48,7 +48,7 @@ public class IrcSignalRBridge : IIrcConnectionObserver
                 Timestamp = DateTime.UtcNow
             });
 
-            if (senderNick.Equals("BanchoBot", StringComparison.OrdinalIgnoreCase))
+            if (senderNick.Equals("BanchoBot", StringComparison.OrdinalIgnoreCase) && chatId.StartsWith("#mp"))
             {
                 var updatedLobby = await _lobbyService.ProcessMessage(chatId, message);
                 if (updatedLobby != null) 
