@@ -10,8 +10,8 @@ using Reforia.Core.Common.Database;
 namespace Reforia.Core.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260301202355_tournament")]
-    partial class tournament
+    [Migration("20260303184231_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -36,29 +36,6 @@ namespace Reforia.Core.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Config");
-                });
-
-            modelBuilder.Entity("Reforia.Core.Common.Database.Entities.Tournament", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Acronym")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Data")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Tournaments");
                 });
 #pragma warning restore 612, 618
         }
