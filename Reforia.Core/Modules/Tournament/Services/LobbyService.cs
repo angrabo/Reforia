@@ -14,7 +14,7 @@ public partial class LobbyService
 
     private readonly ConcurrentDictionary<string, LobbyStateDto> _lobbies = new();
 
-    [GeneratedRegex(@"^Slot\s+(?<slot>\d+)\s+(?<ready>Ready|Not Ready|No Map)\s+https?:\/\/osu\.ppy\.sh\/u\/\d+\s+(?<user>[^\s\[]+)(?:\s+\[Team\s+(?<team>Blue|Red)\s*\])?", RegexOptions.IgnoreCase | RegexOptions.Compiled)]
+    [GeneratedRegex(@"^Slot\s+(?<slot>\d+)\s+(?<ready>Ready|Not Ready|No Map)\s+https?://osu\.ppy\.sh/u/\d+\s+(?<user>.+?)(?:\s+\[(?<bracket>[^\]]*)\])?$", RegexOptions.IgnoreCase | RegexOptions.Compiled)] 
     private static partial Regex PlayerRegex();
 
     [GeneratedRegex(@"Room name:\s*(?<name>.+?),\s*History:", RegexOptions.IgnoreCase | RegexOptions.Compiled)]
@@ -147,17 +147,30 @@ public partial class LobbyService
     private LobbyStateDto ProcessPlayerActions(LobbyStateDto lobby, string text)
     {
         if (PlayerRegex().Match(text) is { Success: true } p)
-            return UpsertPlayer(
-                lobby,
-                new PlayerDto(int.Parse(p.Groups["slot"].Value), p.Groups["user"].Value, false,
-                              p.Groups["ready"].Value == "Ready",
-                              NormalizeTeam(p.Groups["team"].Value, lobby.Settings.TeamMode)));
+        {
+            var (team, mods) = ParseBracket(
+                p.Groups["bracket"].Value,
+                lobby.Settings.TeamMode);
+
+            return UpsertPlayer(lobby, new PlayerDto(
+                                    int.Parse(p.Groups["slot"].Value),
+                                    p.Groups["user"].Value,
+                                    false,
+                                    p.Groups["ready"].Value.Equals("Ready", StringComparison.OrdinalIgnoreCase),
+                                    team,
+                                    mods));
+        }
 
         if (JoinedRegex().Match(text) is { Success: true } j)
-            return UpsertPlayer(
-                lobby,
-                new PlayerDto(int.Parse(j.Groups["slot"].Value), j.Groups["user"].Value, false, false,
-                              NormalizeTeam(j.Groups["team"].Value, lobby.Settings.TeamMode)));
+        {
+            var team = j.Groups["team"].Value;
+            return UpsertPlayer(lobby, new PlayerDto(
+                                    int.Parse(j.Groups["slot"].Value),
+                                    j.Groups["user"].Value,
+                                    false,
+                                    j.Groups["ready"].Value.Equals("Ready", StringComparison.OrdinalIgnoreCase),
+                                    team, Mods.None));
+        }
 
         if (LeftRegex().Match(text) is { Success: true } l)
         {
@@ -190,6 +203,33 @@ public partial class LobbyService
         }
 
         return lobby;
+    }
+    
+    private(string Team, Mods Mods) ParseBracket(string? bracket, string teamMode)
+    {
+        if (string.IsNullOrWhiteSpace(bracket))
+            return (NormalizeTeam(string.Empty, teamMode), Mods.None);
+
+        var segments = bracket.Split('/').Select(s => s.Trim()).ToList();
+
+        var rawTeam = string.Empty;
+        var mods = Mods.None;
+
+        foreach (var segment in segments)
+        {
+            if (Regex.IsMatch(segment, @"^Team\s+(Blue|Red)$", RegexOptions.IgnoreCase))
+            {
+                rawTeam = Regex.Match(segment, @"Blue|Red", RegexOptions.IgnoreCase).Value;
+                continue;
+            }
+
+            if (segment.Equals("Host", StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            mods |= ModsExtensions.ParseMods(segment.Split(','));
+        }
+
+        return (NormalizeTeam(rawTeam, teamMode), mods);
     }
 
     private LobbyStateDto ApplySettings(LobbyStateDto lobby, string mode, string winCond,
@@ -236,66 +276,73 @@ public partial class LobbyService
         return s;
     }
 
-    private LobbySettingsDto HandleModUpdate(LobbySettingsDto s, string text)
+private LobbySettingsDto HandleModUpdate(LobbySettingsDto s, string text)
+{
+    if (text.StartsWith("Active mods:", StringComparison.OrdinalIgnoreCase))
+        return ParseFullModsList(s, text[12..].Trim());
+
+    if (text.Contains("Disabled all mods", StringComparison.OrdinalIgnoreCase))
+        return s with { Mods = Mods.None };
+
+    if (text.Contains("Enabled", StringComparison.OrdinalIgnoreCase) ||
+        text.Contains("Disabled", StringComparison.OrdinalIgnoreCase))
+        return ParseIncrementalModChange(s, text);
+
+    return s;
+}
+
+private LobbySettingsDto ParseIncrementalModChange(LobbySettingsDto s, string text)
+{
+    var mods = s.Mods;
+    var freemod = s.Freemod;
+
+    // "Enabled X, Y" / "Disabled X, Y"
+    // może być np: "Enabled Hidden, HardRock, disabled DoubleTime"
+    foreach (var segment in text.Split(','))
     {
-        if (text.StartsWith("Active mods:", StringComparison.OrdinalIgnoreCase))
+        var part = segment.Trim();
+        bool enabling;
+
+        if (part.StartsWith("Enabled ", StringComparison.OrdinalIgnoreCase))
         {
-            return ParseFullModsList(s, text[12..].Trim());
+            enabling = true;
+            part = part[8..].Trim();
+        }
+        else if (part.StartsWith("Disabled ", StringComparison.OrdinalIgnoreCase))
+        {
+            enabling = false;
+            part = part[9..].Trim();
+        }
+        else continue;
+
+        if (part.Equals("FreeMod", StringComparison.OrdinalIgnoreCase))
+        {
+            freemod = enabling;
+            continue;
         }
 
-        var currentMods = new List<string>();
-    
-        if (text.Contains("Enabled", StringComparison.OrdinalIgnoreCase))
-        {
-            var enabledPart = text;
-            if (text.Contains(", disabled", StringComparison.OrdinalIgnoreCase)) 
-                enabledPart = text.Split(", disabled")[0];
-        
-            enabledPart = enabledPart.Replace("Enabled ", "", StringComparison.OrdinalIgnoreCase);
-        
-            var modsFound = enabledPart.Split(", ")
-                .Select(m => m.Trim())
-                .Where(m => !string.IsNullOrEmpty(m));
-
-            foreach (var m in modsFound) 
-                AddModToList(currentMods, m);
-
-            if (text.Contains("FreeMod", StringComparison.OrdinalIgnoreCase)) 
-                s = s with { Freemod = text.Contains("Enabled FreeMod", StringComparison.OrdinalIgnoreCase) ? "true" : "false" };
-
-            return s with { Mods = currentMods.Count == 0 ? "None" : string.Join(", ", currentMods) };
-        }
-
-        if (text.Contains("Disabled all mods", StringComparison.OrdinalIgnoreCase))
-            return s with { Mods = "None" };
-
-        return s;
-    }
-        
-    private void AddModToList(List<string> list, string mod)
-    {
-        if (string.IsNullOrWhiteSpace(mod)) return;
-        
-        if (!list.Any(m => m.Equals(mod, StringComparison.OrdinalIgnoreCase))) 
-            list.Add(mod);
+        if (ModsExtensions.ModAliases.TryGetValue(part, out var mod))
+            mods = enabling ? mods | mod : mods & ~mod;
     }
 
-    private LobbySettingsDto ParseFullModsList(LobbySettingsDto s, string modsPart)
-    {
-        var isFreemod = modsPart.Contains("Freemod", StringComparison.OrdinalIgnoreCase);
-        var modsList = modsPart.Split(", ")
-            .Select(m => m.Trim())
-            .Where(m => !string.IsNullOrEmpty(m) && 
-                         !m.Equals("None", StringComparison.OrdinalIgnoreCase) && 
-                         !m.Equals("Freemod", StringComparison.OrdinalIgnoreCase))
-            .ToList();
+    return s with { Mods = mods, Freemod = freemod };
+}
 
-        return s with
-        {
-            Freemod = isFreemod ? "true" : "false",
-            Mods = modsList.Count == 0 ? "None" : string.Join(", ", modsList)
-        };
-    }
+private LobbySettingsDto ParseFullModsList(LobbySettingsDto s, string modsPart)
+{
+    var freemod = modsPart.Contains("Freemod", StringComparison.OrdinalIgnoreCase);
+
+    var mods = modsPart
+        .Split(',')
+        .Select(m => m.Trim())
+        .Where(m => !string.IsNullOrEmpty(m)
+                 && !m.Equals("None", StringComparison.OrdinalIgnoreCase)
+                 && !m.Equals("Freemod", StringComparison.OrdinalIgnoreCase))
+        .Aggregate(Mods.None, (acc, m) =>
+                       ModsExtensions.ModAliases.TryGetValue(m, out var mod) ? acc | mod : acc);
+
+    return s with { Mods = mods, Freemod = freemod };
+}
 
     private LobbyStateDto UpsertPlayer(LobbyStateDto lobby, PlayerDto player)
     {

@@ -5,5 +5,6 @@ public record PlayerDto(
     string Username,
     bool IsPlaying,
     bool IsReady,
-    string Team
+    string Team,
+    Mods Mods
 );
