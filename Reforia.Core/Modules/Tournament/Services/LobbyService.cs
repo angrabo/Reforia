@@ -164,6 +164,7 @@ public partial class LobbyService
         if (JoinedRegex().Match(text) is { Success: true } j)
         {
             var team = j.Groups["team"].Value;
+            team = NormalizeTeam(team, lobby.Settings.TeamMode);
             return UpsertPlayer(lobby, new PlayerDto(
                                     int.Parse(j.Groups["slot"].Value),
                                     j.Groups["user"].Value,
